@@ -1,0 +1,31 @@
+\chapter{Analysis}
+
+\begin{table}[H] \centering 
+  \caption{Model overview. Estimated upon data spanning from $Mar - 1968$ to $Dec - 2015$, that 48 years of data.} 
+  \label{tab:Models_Compared}
+  \begin{center}
+\begin{tabular}{@{\extracolsep{3pt}} lclccc} 
+%\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+Model &  \# Factors & Determined by & $y_t$ lag & $\hat{F}_t$ lag & $X^{\star}$ lag \\ 
+\hline \\[-1.8ex] 
+PCA $IC_2$ & 7 & $IC_2$ on PCA \tnote{*} & 1 & 1 & 2 \\ 
+PCA F1\tnote{**} & 1 & & 1 & 1 &  \\ 
+PCA F2\tnote{**} & 2 & & 1 & 1 &  \\ 
+PCA F3\tnote{**} & 3 & & 1 & 1 &  \\ 
+PCA F4\tnote{**} & 4 & & 1 & 1 &  \\ 
+\midrule
+PLS  $IC_2$ & 8 & $IC_2$ on PLS \tnote{*} & 1 & 1 & 2 \\ 
+PLS  MSE & 15 & MSE  & 1 & 1 & 2 \\ 
+PLS F1\tnote{**} & 1 & & 1 & 1 &  \\ 
+PLS F2\tnote{**} & 2 & & 1 & 1 &  \\ 
+PLS F3\tnote{**} & 3 & & 1 & 1 &  \\ 
+PLS F4\tnote{**} & 4 & & 1 & 1 &  \\ 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{center}
+\begin{tablenotes}\footnotesize
+\item[*] Cross-Validated (all combinations of some max lag value of the different predictors needs to be estimated, hence a quite computual heavy method for finding the best model) 
+\item[**] No key-predictors included.
+\end{tablenotes} 
+\end{table} 

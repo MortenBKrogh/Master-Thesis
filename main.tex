@@ -1,14 +1,39 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
 
-\title{Master-Thesis}
-\author{Morten Krogh}
-\date{October 2019}
+\input{Preamble}
+
+%\renewcommand{\familydefault}{\AUPLBody}
 
 \begin{document}
 
-\maketitle
+\include{Formalities/Frontpage}
 
-\section{Introduction}
+\pagenumbering{roman}
+
+
+\include{Formalities/Preface}
+\include{Formalities/Titlepage}
+\include{Formalities/Abstract}
+
+\cleardoublepage
+
+\tableofcontents*\label{toc}
+
+\pagenumbering{arabic}
+\include{Content/1-Introduction}
+\include{Content/2-Data}
+\include{Content/3-Methodology}
+\include{Content/4-Analysis}
+\include{Content/5-Conclusion}
+
+% Bibliography
+\bibliographystyle{apa}
+\bibliography{Bibliography.bib}
+
+
+%Appendix
+\appendix
+\phantomsection
+\input{Content/6-Appendix}
+\pdfbookmark[0] {Appendix}{appendix}
 
 \end{document}

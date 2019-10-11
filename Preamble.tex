@@ -1,0 +1,234 @@
+\documentclass[twoside, a4paper,12pt, openright]{memoir}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+% Packages
+\usepackage{geometry}
+\usepackage{lipsum}% for auto generating text
+\usepackage{afterpage}
+\usepackage[export]{adjustbox}
+\usepackage{etoolbox}
+\usepackage{titlesec}
+\usepackage{pdfpages}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+%\usepackage[table,xcdraw]{xcolor}
+\usepackage[flushleft]{threeparttable}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage[labelfont=bf]{caption}
+
+% Aarhus University Font
+\usepackage{fontspec}
+\defaultfontfeatures[AUFont]
+    {
+Extension = .ttf ,
+UprightFont = ./Fonts/AUPassata_Rg,
+BoldFont    = ./Fonts/AUPassata_Bold,
+ItalicFont  = ./Fonts/AUPassata_Italic
+}
+\setmainfont{AUFont}
+%\chapterfont{\fontfamily{Georgia}\selectfont}
+%\setmainfont{Georgia} 
+
+
+% Aarhus University Blue
+\definecolor{AUdefault}{RGB}{0,61,133}
+
+% ¤¤ Marginer ¤¤ %
+\setlrmarginsandblock{3.5cm}{2.5cm}{*}		% \setlrmarginsandblock{Indbinding}{Kant}{Ratio}
+\setulmarginsandblock{2.5cm}{3.0cm}{*}		% \setulmarginsandblock{Top}{Bund}{Ratio}
+\checkandfixthelayout 						% Oversaetter vaerdier til brug for andre pakker
+
+% Laver forskellige beregninger og sætter de almindelige længder op til brug ikke memoir pakker
+
+%	¤¤ Afsnitsformatering ¤¤ %
+\setlength{\parindent}{0mm}           	
+% Størrelse af indryk
+\setlength{\parskip}{3mm}          			
+% Afstand mellem afsnit ved brug af double Enter
+\linespread{1,5}											
+% Linie afstand
+
+
+
+% ¤¤ Indholdsfortegnelse ¤¤ %
+\setsecnumdepth{subsection}		 			
+% Dybden af nummerede overkrifter (part/chapter/section/subsection)
+\maxsecnumdepth{subsection}					
+% Ændring af dokumentklassens grænse for nummereringsdybde
+\settocdepth{subsection} 								
+% Dybden af indholdsfortegnelsen
+
+
+
+
+
+%%%%%%% Opsætning af hyperlink til table of contents  %%%%
+\usepackage{eso-pic}
+% ¤¤ Visuelle referencer ¤¤ %
+\usepackage[colorlinks]{hyperref}			% Danner klikbare referencer (hyperlinks) i dokumentet.
+\hypersetup{colorlinks = true,				% Opsaetning af farvede hyperlinks (interne links, citeringer og URL)
+    linkcolor = black,
+    citecolor = black,
+    urlcolor = black}
+
+\usepackage{ifthen}
+\newboolean{linktoc}
+\setboolean{linktoc}{true}  %%% uncomment to show answers properly
+%\setboolean{linktoc}{false}  %%% comment to show answers properly
+
+\newcommand\AtPageUpperRight[1]{\AtPageUpperLeft{%
+ \put(\LenToUnit{\paperwidth},\LenToUnit{-0.3\paperheight}){#1}%
+ }}%
+\newcommand\AtPageLowerRight[1]{\AtPageLowerLeft{%
+ \put(\LenToUnit{\paperwidth},\LenToUnit{0.3\paperheight}){#1}%
+ }}%
+
+\ifthenelse{\boolean{linktoc}}%
+{%
+\AddToShipoutPictureBG{%
+   \AtPageUpperRight{\put(-300,207){\hyperref[toc]{\textcolor{white}{Go to ToC}}}}
+   %\AtPageLowerRight{\put(-70,-70){\hyperref[toc]{Go to ToC}}}
+    }%
+}%
+{}%
+
+\usepackage{titletoc}
+\renewcommand{\contentsname}{\centering Contents}
+
+\pretolerance=2500 							% Justering af afstand mellem ord (hoejt tal, mindre orddeling og mere luft mellem ord)
+
+
+% ¤¤ Navngivning ¤¤ %
+\addto\captionsdanish{
+	\renewcommand\cftchaptername{\chaptername~}				% Skriver "Kapitel" foran kapitlerne i indholdsfortegnelsen
+	\renewcommand\cftappendixname{\appendixname~}			% Skriver "Appendiks" foran appendiks i indholdsfortegnelsen
+}
+
+%%%% ORDDELING %%%%
+
+\hyphenation{In-te-res-se e-le-ment}
+
+\makeatletter
+\renewcommand{\@biblabel}[1]{[#1]\hfill}
+\makeatother
+
+
+
+
+
+
+
+
+
+% ¤¤ Kapiteludssende ¤¤ %
+\newif\ifchapternonum
+
+\makeatletter
+\let\ps@plain\ps@empty
+\makeatother
+
+\makechapterstyle{jenor}{					% Definerer kapiteludseende frem til ...
+
+%\newfontfamily\subsubsectionfont[Color=AUdefault]{AUFont}
+
+%\renewcommand\sectitlefont{\AUPLight\fontsize{15}{25}\selectfont\raggedleft}
+  \renewcommand\beforechapskip{0pt}
+  \renewcommand\printchaptername{}
+  \renewcommand\printchapternum{}
+  \renewcommand\printchapternonum{\chapternonumtrue}
+  \renewcommand\chaptitlefont{\fontsize{25}{35}\selectfont\raggedleft}
+  \renewcommand\chapnumfont{\fontsize{1.5in}{0in}\selectfont\color{AUdefault}}
+   \renewcommand\printchaptertitle[1]{%
+    \noindent
+    \ifchapternonum
+    \begin{tabularx}{\textwidth}{X}
+    {\let\\\newline\chaptitlefont ##1\par} 
+    \end{tabularx}
+    \par\vskip-2.5mm\hrule
+    \else
+    \begin{tabularx}{\textwidth}{Xl}
+    {\parbox[b]{\linewidth}{\chaptitlefont ##1}} & \raisebox{-15pt}{\chapnumfont \thechapter}
+    \end{tabularx}
+    \par\vskip2mm\hrule
+    \fi
+  }
+}											% ... her
+
+\chapterstyle{jenor}						% veelo Valg af kapiteludseende - Google 'memoir chapter styles' for alternativer
+
+% ¤¤ Sidehoved/sidefod ¤¤ %
+%\usepackage[page]{totalcount}
+
+\makepagestyle{Uni}							% Definerer sidehoved og sidefod udseende frem til ...
+\makepsmarks{Uni}{%
+%	\createmark{chapter}{left}{shownumber}{}{. \ }
+%	\createmark{section}{right}{shownumber}{}{. \ }
+	\createplainmark{toc}{both}{\contentsname}
+	\createplainmark{lof}{both}{\listfigurename}
+	\createplainmark{lot}{both}{\listtablename}
+%\createplainmark{bib}{both}{\bibname}
+%	\createplainmark{index}{both}{\indexname}
+%	\createplainmark{glossary}{both}{\glossaryname}
+}
+\nouppercaseheads											% Ingen Caps oenskes
+
+% \makeevenhead{Uni}{Gruppe 2}{}{\leftmark}				
+% Lige siders sidehoved (\makeevenhead{Navn}{Venstre}{Center}{Hoejre})
+% \makeoddhead{Uni}{\rightmark}{}{Aalborg Universitet}			            % Ulige siders sidehoved (\makeoddhead{Navn}{Venstre}{Center}{Hoejre})
+\makeevenfoot{Uni}{\thepage}{}{}							% Lige siders sidefod (\makeevenfoot{Navn}{Venstre}{Center}{Hoejre})
+\makeoddfoot{Uni}{}{}{\thepage}								% Ulige siders sidefod (\makeoddfoot{Navn}{Venstre}{Center}{Hoejre})
+%\makeheadrule{Uni}{\textwidth}{0.5pt}						% Tilfoejer en streg under sidehovedets indhold
+%\makefootrule{Uni}{\textwidth}{0.5pt}{1mm}					% Tilfoejer en streg under sidefodens indhold
+
+\copypagestyle{Unichap}{Uni}								% Sidehoved defineres som blank på kapitelsider
+\makeoddhead{Unichap}{}{}{}
+\makeevenhead{Unichap}{}{}{}
+\makeheadrule{Unichap}{\textwidth}{0pt}
+\aliaspagestyle{chapter}{Unichap}							% Den ny style vaelges til at gaelde for chapters
+															% ... her
+															
+\pagestyle{Uni}												% Valg af sidehoved og sidefod (benyt "plain" for ingen sidehoved/fod)
+
+
+
+
+\usepackage[natbibapa]{apacite}
+
+%% You can pass in your own texcount params, e.g. -chinese to turn on Chinese mode, or -char to do a character count instead (which does NOT include spaces!)
+%%% http://app.uio.no/ifi/texcount/documentation.html
+
+%% To include references. DO NOT USE WITH BIBLATEX 
+%TC:incbib
+
+%% To include tabulars in main text count.
+%TC:group table 0 1
+%TC:group tabular 1 1
+
+\newcommand{\detailtexcount}[1]{%
+  \immediate\write18{texcount -merge -sum -q #1.tex output.bbl > #1.wcdetail }%
+  \verbatiminput{#1.wcdetail}%
+}
+
+\newcommand{\quickwordcount}[1]{%
+  \immediate\write18{texcount -1 -sum -merge -q #1.tex output.bbl > #1-words.sum }%
+  \input{#1-words.sum} words%
+}
+
+%   -sum, -sum=   Make sum of all word and equation counts. May also use
+%              -sum=#[,#] with up to 7 numbers to indicate how each of the
+%              counts (text words, header words, caption words, #headers,
+%              #floats, #inlined formulae, #displayed formulae) are summed.
+%              The default sum (if only -sum is used) is the same as
+%              -sum=1,1,1,0,0,1,1.
+
+
+\newcommand{\quickcharcount}[1]{%
+  \immediate\write18{texcount -1 -sum -merge -char -q #1.tex output.bbl > #1-chars.sum }%
+  \input{#1-chars.sum} characters (not including spaces)%
+}
+
+
+
