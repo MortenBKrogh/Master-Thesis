@@ -4,19 +4,20 @@ rm(list=ls())
 
 # loading required packages
 cat('Installing and loading required packages.')
-source("load_packages.R")
+source("code/load_packages.R")
 cat('Packages loaded.')
 #Clearing variables
 rm(list=ls())
 
 # source script where functions to download and prepare data are located
-source('functions.R')
+source('code/functions.R')
 
 # Download  sample files and place them in the data folder
- Data(2005, 2018, sample=FALSE)
+# Data(2012, 2018, sample=FALSE)
 
 # Then we need to do some preprocessing of the original data aswell as calculating performance features
-#var_names <- prepare_FMdata(1999, 2018, sample=TRUE)
+var_names <- prepare_FMdata(1, 79, sample=FALSE
+
 var_names
 # Load 'raw' data
 var_names <- c("id_loan","dt_first_pi","fico","flag_fthb","dt_matr","cd_msa","mi_pct","cnt_units",
@@ -34,31 +35,32 @@ FM_data <- ldply(FM_data_files, data.table::fread, sep = "|", header = FALSE, co
 #FM_data$delq_sts <- as.character(FM_data$delq_sts)
 
 # select the data for the model (OBS: delq_sts and current causes problems.. hence they are not included.)
-data_model <- subset(FM_data, !is.na(FM_data$default)) %>%
-        #select(-excluded_vars)
-        select(default, fico, flag_fthb, mi_pct, cnt_units,
-               occpy_sts, cltv, dti, orig_upb, ltv, int_rt,
-               channel, st, prop_type, loan_purpose, delq_sts,
-               orig_loan_term, cnt_borr, seller_name,
-               servicer_name, current_int_rt, loan_age,
-               mths_remng, cd_zero_bal, current, `#current`, `#30_dl`,
-               `#60_dl`, `#current_l12`, `#30_dl_l12`) %>% drop_na()
-
-#prop_type, seller_name, servicer_name, current_int_rt, cd_zero_bal, #60_dl 
-data_model <- subset(FM_data, !is.na(FM_data$default)) %>%
+data <- subset(FM_data, !is.na(FM_data$default)) %>%
   #select(-excluded_vars)
   select(default, fico, flag_fthb, mi_pct, cnt_units,
          occpy_sts, cltv, dti, orig_upb, ltv, int_rt,
-         channel, st, loan_purpose, 
+         channel, st, prop_type, loan_purpose, delq_sts,
          orig_loan_term, cnt_borr,
-         loan_age,
-         mths_remng, `#current`, `#30_dl`,
-         `#current_l12`, `#30_dl_l12`) %>% drop_na()      
+         seller_name, servicer_name, 
+         current_int_rt, loan_age,
+         mths_remng, cd_zero_bal, `#current`, `#30_dl`,
+         `#60_dl`, `#current_l12`, `#30_dl_l12`) %>% drop_na()
+
+# #prop_type, seller_name, servicer_name, current_int_rt, cd_zero_bal, #60_dl 
+# data_model <- subset(FM_data, !is.na(FM_data$default)) %>%
+#   #select(-excluded_vars)
+#   select(default, fico, flag_fthb, mi_pct, cnt_units,
+#          occpy_sts, cltv, dti, orig_upb, ltv, int_rt,
+#          channel, st, loan_purpose, 
+#          orig_loan_term, cnt_borr,
+#          loan_age,
+#          mths_remng, `#current`, `#30_dl`,
+#          `#current_l12`, `#30_dl_l12`) %>% drop_na()      
 
 # obtain train and test dataset
 set.seed (20200206) # Seed: The day I am handing in my thesis
 ( train_test_split <- initial_split (data_model, prop = 0.7) )
-train <- training (train_test_split) # %>% sample_n(15000)
+train <- training (train_test_split) 
 test  <- testing (train_test_split)
 
 

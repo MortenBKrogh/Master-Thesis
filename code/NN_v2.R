@@ -2,8 +2,8 @@
 preprocessing_steps <-
   recipe(default ~ ., data = train) %>%
   # (1) One-Hot Encoding for the Categorical Variables
-  step_string2factor(flag_fthb, occpy_sts, channel, st, loan_purpose) %>%
-  step_dummy(flag_fthb, occpy_sts, channel, st, loan_purpose)%>%
+  step_string2factor(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose) %>%
+  step_dummy(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose)%>%
   # step_string2factor(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose, seller_name, servicer_name) %>%
   # step_dummy(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose, seller_name, servicer_name)%>%
   # (2) Normalizing Variables
@@ -12,11 +12,11 @@ preprocessing_steps <-
   #step_range(fico, dti, orig_upb, int_rt, cnt_units, ltv, '#30_days_late', 'surv_30', min = 0, max = 1)
   # (3) Last step prep
   prep(data = train)
-  
+
 x_train <- bake (preprocessing_steps, new_data = train) %>% 
-                select (-default)
+  select (-default)
 x_test <- bake (preprocessing_steps, new_data = test) %>% 
-                select (-default)
+  select (-default)
 
 y_train <- ifelse (pull (train, default) == TRUE, 1, 0)
 y_test  <- ifelse (pull (test, default)  == TRUE, 1, 0)
@@ -24,24 +24,24 @@ y_test  <- ifelse (pull (test, default)  == TRUE, 1, 0)
 # Build the Artificial Neural Network
 ANN_v1 <- keras_model_sequential() %>%
   # (1) 1st Hidden Layer
-layer_dense (units              = 128, #=> Num Of Nodes
-             #kernel_initializer = "uniform", 
-             activation         = "relu",    
-             input_shape        = ncol(x_train)) %>% 
+  layer_dense (units              = 128, #=> Num Of Nodes
+               #kernel_initializer = "uniform", 
+               activation         = "relu",    
+               input_shape        = ncol(x_train)) %>% 
   layer_dropout (rate = 0.1) %>%  #=> Dropout Below 10%: Prevent overfitting
   # (2) 2nd Hidden Layer
-layer_dense (units              = 128,
-             #kernel_initializer = "uniform", 
-             activation         = "relu") %>% 
+  layer_dense (units              = 128,
+               #kernel_initializer = "uniform", 
+               activation         = "relu") %>% 
   layer_dropout (rate = 0.1) %>%  
   # (3) Output Layer
-layer_dense (units              = 1, #=> Binary/Multi?=>That Number
-             #kernel_initializer = "uniform", 
-             activation         = "sigmoid") %>% #=> Common for Binary
+  layer_dense (units              = 1, #=> Binary/Multi?=>That Number
+               #kernel_initializer = "uniform", 
+               activation         = "sigmoid") %>% #=> Common for Binary
   # (4) Compile Model
-compile (optimizer = 'adam', #=> Most Popular for Optimization Algo.
-         loss      = 'binary_crossentropy', #=> Binary Classification
-         metrics   = c('accuracy') ) #=> Train/Test Evaluation
+  compile (optimizer = 'adam', #=> Most Popular for Optimization Algo.
+           loss      = 'binary_crossentropy', #=> Binary Classification
+           metrics   = c('accuracy') ) #=> Train/Test Evaluation
 
 # check the model is as it should be
 ANN_v1
@@ -52,16 +52,18 @@ system.time (
     object           = ANN_v1,                  # => Our Model
     x                = as.matrix (x_train),     #=> Matrix
     y                = y_train,                 #=> Numeric Vector 
-    batch_size       = 500,     #=> #OfSamples/gradient update in each epoch
-    epochs           = 35,     #=> Control Training cycles
+    batch_size       = 115000,     #=> #OfSamples/gradient update in each epoch
+    epochs           = 15,     #=> Control Training cycles
     validation_split = 0.30) ) #=> Include 30% data for 'Validation' Model
+# Save the model
+save_model_hdf5(ANN_v1, "ANN_v1.h5")
 
 print (history)
 
 # Predicted Class
 yhat_keras_class_vec <- predict_classes (object = ANN_v1,
-                                        x = as.matrix(x_test)) %>%
-                        as.vector()
+                                         x = as.matrix(x_test)) %>%
+  as.vector()
 # Predicted Probabilities
 yhat_keras_prob_vec <- 
   predict_proba (object = ANN_v1, 
@@ -135,19 +137,19 @@ model_type.keras.models.Sequential <- function(x, ...) {
 # The output is also a little tricky because it must be in the format of probabilities by classification (this is important; shown next).
 
 predict_model.keras.engine.sequential.Sequential <- function (x, newdata, type, ...) {
-                                                                            pred <- predict_proba (object = x, x = as.matrix(newdata))
-                                                                            data.frame ('Default' = pred, 'NonDefault' = 1 - pred) }
+  pred <- predict_proba (object = x, x = as.matrix(newdata))
+  data.frame ('Default' = pred, 'NonDefault' = 1 - pred) }
 
 
 predict_model (x       = ANN_v1, 
                newdata = x_test, 
                type    = 'raw') # %>%
-  tibble::as_tibble()
+tibble::as_tibble()
 
 explainer <- lime::lime (
-    x              = x_train, 
-    model          = ANN_v1, 
-    bin_continuous = FALSE)
+  x              = x_train, 
+  model          = ANN_v1, 
+  bin_continuous = FALSE)
 
 system.time (
   explanation <- lime::explain (
