@@ -1,0 +1,209 @@
+\chapter{Methodology}
+This chapter provides the general background on the methodology applied in this thesis. First introducing the industry standard for default predictions and this thesis' benchmark model, that is the approach of logistic regression, then the chapter introduces Artificial Neural Networks as and alternative approach for in this case classification of defaults and non-defaults. At last the Local Interpretable Model-agnostic Explanations (LIME) method for explaining >>black-box<< models is introduced.
+    
+    \section{Logistic Regression}
+    The logistic regression was proposed by \cite{David_Cox_1958} and is a linear classifier, which models the probability of the possible classes in the target variable. In this thesis there are two classes of the target variable, that is >>Default<< and >>Non-Default<<, thus the problem is a binary classification problem. 
+    Logistic regression apply linear functions in the predictors, and since the outcome modeled is probabilities, they have to lie between $[0,1]$, several functions are available to ensure this, the logistic regression model uses the logistic function. 
+    
+    le Let $\gamma$ be the dependent variable and $\boldsymbol{X} = \left(X_1, \dots, X_p\right)$ denote the predictor variables then we the logistic regression model is given by equation \ref{eq:logreg_1}:
+    
+    
+    \begin{flalign} \label{eq:logreg_1}
+    p_1\left( \boldsymbol{X} \right) = P \left( \gamma = 1 \mid \boldsymbol{X} \right) = \frac{e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}}{1+e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}} = \frac{e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X}  }}{1 + e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X^{\prime}} }}
+    \end{flalign}
+
+    $\beta_0$, $\boldsymbol{\beta}$ are the parameters of the model. The model applies the logistic function $f\left( x \right) = \frac{e^x}{1+e^x}$ to $\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X}$, the logistic function is depicted in Figure \ref{fig:logistic_function}, the figure exemplifies how the function is mapping values in the interval $\left[ -\infty, \infty \right]$ to always lie in the interval $\left[ 0,1 \right]$.
+
+\begin{figure}[H]
+    \centering
+\begin{tikzpicture}
+    \begin{axis}%
+    [
+        grid=minor,     
+        xmin=-10,
+        xmax=10,
+        axis x line=bottom,
+        ytick={0,.5,1},
+        ymax=1,
+        axis y line=middle,
+        % style={ultra thick},
+    ]
+        \addplot%
+        [
+            AUdefault,%
+            mark=none,
+            samples=100,
+            domain=-10:10,
+            linewidth = 10pt,
+        ]
+        (x,{1/(1+exp(-x))});
+    \end{axis}
+\end{tikzpicture}
+    \caption{The Logistic Function}
+    \label{fig:logistic_function}
+\end{figure}
+
+The odds are given by equation \ref{eq:logreg_odds}
+
+\begin{flalign} \label{eq:logreg_odds}
+\frac{p_1\left( \boldsymbol{X} \right) }{1 - p_1\left( \boldsymbol{X} \right)} & = e^{\beta_0 + \boldsymbol{\beta^{\top} X}}
+\end{flalign}
+
+ the odds lies in the interval $\left[0, \infty \right]$. Values close to $0$ indicates a small probability of the event happening and the opposite of values close to $\infty$. Now take the logarithm of equation \ref{eq:logreg_odds} we obtain the logit in equation \ref{eq:logreg_logit}.
+
+\begin{flalign} \label{eq:logreg_logit}
+\log \left( \frac{p_1\left( \boldsymbol{X} \right) }{1 - p_1\left( \boldsymbol{X} \right)}\right) & = \beta_0 + \boldsymbol{\beta^{\top} X}
+\end{flalign}
+
+Equation \ref{eq:logreg_logit} is linear in parameters and explanatory variables. Thus by changing $X_i$, $i\in \{1, \dots, p \}$ by one unit, and assuming the other explanatory variables $\left(1 - p\right)$ is fixed, will yield a change in the logit by $\beta_i$. This however does not denote a change in $p_1\left(\boldsymbol{X}\right)$ by $\beta_i$, due to the nonlinear relationship between $p_1\left(\boldsymbol{X} \right)$ and $X_i$. It denotes that when $\beta_i > 0$ an increase in  $X_i$ does yield an increase in $p_1\left(\boldsymbol{X}\right)$ and vice versa. 
+
+In order to estimate the logistic regression model denoted in Equation \ref{eq:logreg_1}, we rely on maximum likelihood method. The likelihood function in is depicted in Equation \ref{eq:logreg_LK}
+
+\begin{flalign} \label{eq:logreg_LK}
+\mathcal{L} \left(\beta_0, \boldsymbol{\beta} \right) & = \prod_{i:y_i=1} p_1\left(\boldsymbol{x}_i \right) \prod_{j:y_j=0} \left(1-p_1\left(\boldsymbol{x}_j \right)\right)
+\end{flalign}    
+
+in the likelihood function $y_i$ and $\boldsymbol{x_i}$ denotes the i'th observation in the dependent variable and explanatory variables. However we often work with the log-likelihood function instead of Equation \ref{eq:logreg_LK}, which is obtained by using Equation \ref{eq:logreg_odds} together with \ref{eq:logreg_logit} the resulting log-likelihood function is shown in Equation \ref{eq:logreg_LLK} below  
+
+\begin{flalign}
+l\left(\beta_0, \boldsymbol{\beta} \right) & = \log \left( \mathcal{L} \left(\beta_0, \boldsymbol{\beta} \right) \right) \nonumber \\
+& = \sum_{i:y_i=1} \log \left(p_1 \left(\boldsymbol{X}_i \right) \right) + \sum_{j:y_j=0} \log\left( 1 - p_1\left( \boldsymbol{X}_j \right)\right) \nonumber\\
+& = \sum_{i=1}^n \left(y_i \log \left( p_1 \left( \boldsymbol{X}_i \right) \right) + \left( 1-y_i \right) \log \left( 1 - p_1\left( \boldsymbol{X}_i \right)\right)\right) \nonumber \\
+& = \sum_{i=1}^n \left(y_i \log \left(\frac{p_1\left( \boldsymbol{X}_i \right) }{1 - p_1\left( \boldsymbol{X}_i \right)} \right) + \log \left( 1 - p_1\left( \boldsymbol{X}_i 
+\right)\right)\right) \nonumber \\
+& = \sum_{i=1}^n \left(y_i \log \left(\frac{p_1\left( \boldsymbol{X}_i \right) }{1 - p_1\left( \boldsymbol{X}_i \right)} \right) + \log \left( \frac{p_1\left( \boldsymbol{X}_i \right) }{1 - p_1\left( \boldsymbol{X}_i \right)}\right) \right) \nonumber \\
+& = \sum_{i=1}^n \left(y_i \left( \beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X} \right) - \log \left( 1 + e^{1+ \beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X} } \right) \right) \label{eq:logreg_LLK}
+\end{flalign}
+
+In Equation \ref{eq:logreg_LLK} $n$ denotes the number of observations in the data feed to the model. The model parameters that maximize the log-likelihood function above is denoted $\hat{\beta}_0$ and $\hat{\boldsymbol{\beta}}$, these estimates are then used when predicting the probabilities for an event happening, this event is in the case of the thesis the probability of a costumer defaulting on their mortgage. The estimated probabilities are obtained by using Equation  \ref{eq:logreg_estimates}
+
+
+\begin{flalign}
+\hat{p}_1 \left(\boldsymbol{X} \right) = \frac{e^{\hat{\beta}_0 + \hat{\boldsymbol{\beta}}^{\top}\boldsymbol{X}}}{1 + e^{\hat{\beta}_0 + \hat{\boldsymbol{\beta}}^{\top}\boldsymbol{X}}}. \label{eq:logreg_estimates}
+\end{flalign}
+
+
+    
+    
+    \section{Artificial Neural Networks}
+
+\begin{figure}[H]
+    \caption{Neural Network Visualized}
+    \centering
+    \label{fig:my_label}
+\begin{neuralnetwork}[height=12]
+        \newcommand{\x}[2]{$x_#2$}
+        \newcommand{\y}[2]{$\hat{y}_#2$}
+        \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
+        \newcommand{\hsecond}[2]{\small $h^{(2)}_#2$}
+        \newcommand{\hthird}[2]{\small $h^{(3)}_#3$}
+        \inputlayer[count=3, bias=true, title=Input\\layer, text=\x]
+        \hiddenlayer[count=8, bias=false, title=Hidden\\layer 1, text=\hfirst]{\linklayers}
+        \hiddenlayer[count=12, bias=false, title=Hidden\\layer 2, text=\hsecond] \linklayers
+        \hiddenlayer[count=12, bias=false, title=Hidden\\layer 3, text=\hthird] \linklayers 
+        \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
+    \end{neuralnetwork}
+\end{figure}
+
+\begin{tikzpicture}[
+   shorten >=1pt,->,
+   draw=black!50,
+    node distance=\layersep,
+    every pin edge/.style={<-,shorten <=1pt},
+    neuron/.style={circle,fill=black!25,minimum size=17pt,inner sep=0pt},
+    input neuron/.style={neuron, fill=orange},
+    output neuron/.style={neuron, fill=orange},
+    hidden neuron/.style={neuron, fill=AUdefault},
+    annot/.style={text width=4em, text centered}
+]
+
+    % Draw the input layer nodes
+    \foreach \name / \y in {1,...,4}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron, pin=left:Input \#\y] (I-\name) at (0,-\y) {};
+
+    % set number of hidden layers
+    \newcommand\Nhidden{3}
+
+    % Draw the hidden layer nodes
+    \foreach \N in {1,...,\Nhidden} {
+       \foreach \y in {1,...,5} {
+          \path[yshift=0.5cm]
+              node[hidden neuron] (H\N-\y) at (\N*\layersep,-\y cm) {};
+           }
+    \node[annot,above of=H\N-1, node distance=1cm] (hl\N) {Hidden layer \N};
+    }
+
+    % Draw the output layer node
+    \node[output neuron,pin={[pin edge={->}]right:Output}, right of=H\Nhidden-3] (O) {};
+
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    \foreach \source in {1,...,4}
+        \foreach \dest in {1,...,5}
+            \path (I-\source) edge (H1-\dest);
+
+    % connect all hidden stuff
+    \foreach [remember=\N as \lastN (initially 1)] \N in {2,...,\Nhidden}
+       \foreach \source in {1,...,5}
+           \foreach \dest in {1,...,5}
+               \path (H\lastN-\source) edge (H\N-\dest);
+
+    % Connect every node in the hidden layer with the output layer
+    \foreach \source in {1,...,5}
+        \path (H\Nhidden-\source) edge (O);
+
+    % Annotate the layers
+
+    \node[annot,left of=hl1] {Input layer};
+    \node[annot,right of=hl\Nhidden] {Output layer};
+\end{tikzpicture}
+
+
+
+
+        \subsection{Feed forward Neural Networks}
+
+        \subsection{Activation Functions}
+
+            \subsubsection{Sigmoid}
+
+            \subsubsection{Tanh}
+            
+            \subsubsection{ReLU}
+            
+        \subsection{Loss Functions}
+            
+            \subsubsection{Cross-Entropy Loss}
+        
+        \subsection{Training Neural Networks}
+            
+            \subsubsection{Gradient Descent}
+            
+            \subsubsection{Mini-Batch Gradient Descent}
+            
+            \subsubsection{Learning Rate}
+            
+            \subsubsection{Momentum}
+            
+            \subsubsection{Backpropagation}
+            
+            \subsubsection{Weight Initialisation}
+            
+            \lipsum[1-2]
+    
+        \subsection{Layers}
+            
+            \subsection{Batch Normalisation}
+            
+        \subsection{Regularisation}
+        
+            \subsubsection{Dropout}
+            
+            \subsubsection{$L^2$ Regularisation}
+            
+        
+\section{Local Interpretable Model-agnostic Explanations (LIME)}
+
+\section{Performance measures}
+

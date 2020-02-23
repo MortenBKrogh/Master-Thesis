@@ -1,4 +1,116 @@
-\chapter{Original Data}
+\chapter{Freddie Mac}\label{app:Freddie_mac}
 
 some table of the features of the origination- as well as the performance datset. 
 
+
+
+\begin{center}
+\begin{longtable}{@{}
+>{\raggedright}p{.3cm}
+p{6.5cm}
+>{\raggedright}p{3cm}
+>{\raggedright}p{1.5cm}p{1.5cm}@{}
+p{1cm}
+@{}}
+%{l{1cm}l{8cm}ccc}
+\label{tab:FM_origination_features}
+\caption{Loan Origination Features}\\
+\toprule
+\# & \textbf{Feature} & \textbf{Values} & \textbf{Type} & \textbf{Length}  \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}%
+{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\toprule
+\# & \textbf{Feature} & \textbf{Values} & \textbf{Type} & \textbf{Length} \\
+\midrule
+\endhead
+\bottomrule \multicolumn{4}{r}{\textit{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+\tiny 1 & \tiny fico/CREDIT SCORE - A number, prepared by third parties, summarizing the borrower’s creditworthiness, which may be indicative of the likelihood that the borrower will timely repay future obligations. Generally, the credit score disclosed is the score known at the time of acquisition and is the score used to originate the mortgage. & \tiny \begin{itemize} \item 301-850 \item 9999 = Not Availible, if credit score is < 301 or >850.
+\end{itemize} & \tiny Numeric & \tiny 4 \\
+\tiny 2 & \tiny dt\_first\_pi & \tiny 2 & \tiny  3 & \tiny 4 \\
+\tiny 3 & \tiny flag\_fthb & \tiny 2 & \tiny  3 & \tiny 4 \\ 
+\tiny 4 & \tiny dt\_matr & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 5 & \tiny cd\_msa & \tiny 2 & \tiny  3  &\tiny  4\\
+\tiny 6 & \tiny mi\_pct & \tiny 2 & \tiny  3 & \tiny 4 \\ 
+\tiny 7 & \tiny cnt\_units & \tiny 2 & \tiny  3& 4\tiny  \\ 
+\tiny 8 & \tiny occpy\_sts & \tiny 2 & \tiny  3 & \tiny 4 \\
+\tiny 9 & \tiny cltv & \tiny 2 & \tiny  3  &\tiny  4\\ 
+\tiny 10 &\tiny  dti & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 11 &\tiny  orig\_upb & \tiny 2 & \tiny  3  &\tiny  4\\
+\tiny 12 &\tiny  ltv & \tiny 2 & \tiny  3 & \tiny 4 \\ 
+\tiny 13 &\tiny  int\_rt & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 14 &\tiny  channel & \tiny 2 & \tiny  3 & \tiny 4 \\
+\tiny 15 &\tiny  ppmt\_pnlty & \tiny 2 & \tiny  3  &\tiny  4\\ 
+\tiny 16 &\tiny  prod\_type & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 17 &\tiny  st & \tiny 2 & \tiny  3  &\tiny  4\\
+\tiny 18 &\tiny  prop\_type & \tiny 2 & \tiny  3 & \tiny 4 \\ 
+\tiny 19 &\tiny  zipcode & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 20 &\tiny  id\_loan & \tiny 2 & \tiny  3 & \tiny 4 \\
+\tiny 21 &\tiny  loan\_purpose & \tiny 2 & \tiny  3  &\tiny  4\\ 
+\tiny 22 &\tiny  orig\_loan\_term & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 23 &\tiny  cnt\_borr & \tiny 2 & \tiny  3  &\tiny  4\\
+\tiny 24 &\tiny  seller\_name & \tiny 2 & \tiny  3  &\tiny  4\\ 
+\tiny 25 &\tiny  servicer\_name & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 26 &\tiny  flag\_sc & \tiny 2 & \tiny  3  &\tiny  4\\
+\end{longtable}
+\end{center}
+
+\begin{center}
+\begin{longtable}{@{}
+>{\raggedright}p{.5cm}
+p{7.5cm}
+>{\raggedleft}p{1.5cm}
+>{\raggedright}p{1.5cm}p{1.5cm}@{}
+p{1cm}
+@{}} %{l{1cm}l{8cm}ccc}
+\label{tab:FM_performance_features}
+\caption{Loan Performance Features}\\
+\toprule
+\# & \textbf{Feature} & \textbf{Values} & \textbf{Type} & \textbf{Length}  \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}%
+{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\toprule
+\# & \textbf{Feature} & \textbf{Values} & \textbf{Type} & \textbf{Length} \\
+\midrule
+\endhead
+\bottomrule \multicolumn{4}{r}{\textit{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+1 & \small{fico/CREDIT SCORE - A number, prepared by third parties, summarizing the borrower’s creditworthiness, which may be indicative of the likelihood that the borrower will timely repay future obligations. Generally, the credit score disclosed is the score known at the time of acquisition and is the score used to originate the mortgage.} & \begin{itemize}
+    \item 301-850
+    \item 9999 = Not Availible, if credit score is < 301 or >850.
+\end{itemize} & Numeric & 4 \\
+2 & dt\_first\_pi & 2 & 3 & 4 \\
+3 & flag\_fthb & 2 & 3 & 4 \\ 
+4 & dt\_matr & 2 & 3 & 4\\ 
+5 & cd\_msa & 2 & 3  & 4\\
+6 & mi\_pct & 2 & 3 & 4 \\ 
+7 & cnt\_units & 2 & 3& 4 \\ 
+8 & occpy\_sts & 2 & 3 & 4 \\
+9 & cltv & 2 & 3  & 4\\ 
+10 & dti & 2 & 3 & 4\\ 
+11 & orig\_upb & 2 & 3  & 4\\
+12 & ltv & 2 & 3 & 4 \\ 
+13 & int\_rt & 2 & 3 & 4\\ 
+14 & channel & 2 & 3 & 4 \\
+15 & ppmt\_pnlty & 2 & 3  & 4\\ 
+16 & prod\_type & 2 & 3 & 4\\ 
+17 & st & 2 & 3  & 4\\
+18 & prop\_type & 2 & 3 & 4 \\ 
+19 & zipcode & 2 & 3 & 4\\ 
+20 & id\_loan & 2 & 3 & 4 \\
+21 & loan\_purpose & 2 & 3  & 4\\ 
+22 & orig\_loan\_term & 2 & 3 & 4\\ 
+23 & cnt\_borr & 2 & 3  & 4\\
+24 & seller\_name & 2 & 3  & 4\\ 
+25 & servicer\_name & 2 & 3 & 4\\ 
+26 & flag\_sc & 2 & 3  & 4\\ 
+\end{longtable}
+\end{center}
