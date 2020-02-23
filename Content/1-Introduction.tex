@@ -1,6 +1,46 @@
-\chapter{Introduction}
-Artificial Intelligence (AI) has in recent years become more and more popular and a key-capability for many employers when hiring new employees. The popularity arises from the results these algorithms have shown together with the increased availability of the computing power required by these algorithms. However, AI is actually not a new invention, it was born in the 1950s (se depp learning with R, p. 2).... 
+\chapter{Introduction}\label{ch:1}
+The key function of the traditionally bank, is to keep the costumers money safe as well as provide costumers with loans. Using the word >>safe<< indicates only to provide loans to the costumers, whom are able to pay back the loan. Thus a bank must be interested in identifying costumers who have this ability, discard those who does not have it. This can be seen as a classification problem, where it is desired to classify the costumers into classes of >>Defaults<< that is those who does not pay back their loans and >>Non-defaults<<, those who does pay back their loans. The approach utilized by banks to solve this problem has developed over time, first the bank develops some credit policy, which the borrower has to comply with in order to obtain a loan. However as computers became more and more available,  
+
+
+In this thesis I am going to dive into the >>safe<< part of the above statement,  
+
+
+
+
+
+
+
+
+
+
+
+
+Artificial Intelligence (AI) has in recent years become more and more popular and often a key-capability for many employers when hiring new employees. The popularity arises from the results these algorithms have shown, together with the increased availability of the computing power required by these algorithms. AI, Machine Learning and Deep Learning are words often used for describing the same thing, however Machine Learning and Deep Learning are both sub fields of Artificial Intelligence and thus can be depicted as in figure \ref{fig:AI_overview}. 
+
+Even though AI has become very popular in recent days, it is actually not a new invention. The question whether we 
+
+However, AI is actually not a new invention, it was born in the 1950s (se depp learning with R, p. 2).... 
 AI is a very broad terms and includes for example the sub >>Machine Learning<< in which >>Deep Learning<< is another sub group. Deep Learning, is another set of algorithms where one of them is the Artifical Neural Network (ANN), which will be the turning point of this thesis. 
+
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+             %\draw (-2,-2) grid (3,3);
+             %\draw (0,0) ellipse [radius=0.3] node {$T_1$};
+             %\node[draw,ellipse,minimum size=1cm,inner sep=0pt] at (2,0) {$T_1$};
+             \fill[AUdefault] (0,0) ellipse (5.5cm and 3cm);
+             \fill[AUdefault!60] (0,-1) ellipse (3.5cm and 2cm) ;
+             \fill[AUdefault!20] (0,-1.5) ellipse (2cm and 1cm);
+             \node [black] at (-0.9,2) {\textbf{Artificial Intelligence}};
+             \node [black] at (0,.2) {\textbf{Machine Learning}};
+             \node [black] at (.5,-1.5) {\textbf{Deep Learning}};
+             \end{tikzpicture}
+    \caption{Artificial Intelligence Overview}
+    \label{fig:AI_overview}
+\end{figure}{}
+
+
 
 \section{Motivation}
 
@@ -9,3 +49,7 @@ AI is a very broad terms and includes for example the sub >>Machine Learning<< i
 \subsection{Credit Risk}
 
 \subsection{Machine Learning}
+
+\subsection{Thesis Outline}
+In chapter \ref{ch:1} the general introduction and motivation of the binary classification problem has been stated. In Chapter \ref{ch:2} the data utilized will be introduced and the prepossessing steps of the data processing will be described in detail. Chapter \ref{ch:3} introduces the methodology of the models, that is the Neural Network and the industry standard Logistic Regression. Chapter \ref{ch:4} will describe the model specification of the Neural Network, this includes fine-tuning of the Network, and also the Logistic regression model. In Chapter \ref{ch:5} the results of the models will be presented and a comparison will be given. I will also address the interpretability problem of the >>black-box<< model and how it is possible to actually interpret the explanatory factors of such models. Lastly in chapter \ref{ch:6} concluding remarks will be given. 
+I hope you enjoy reading this thesis. 

@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
-
+\usepackage{longtable}
 % Packages
 \usepackage{geometry}
 \usepackage{lipsum}% for auto generating text
@@ -116,7 +116,7 @@ ItalicFont  = ./Fonts/AUPassata_Italic
 \makeatother
 
 
-
+\usepackage{varioref}
 
 
 
@@ -139,8 +139,8 @@ ItalicFont  = ./Fonts/AUPassata_Italic
   \renewcommand\printchaptername{}
   \renewcommand\printchapternum{}
   \renewcommand\printchapternonum{\chapternonumtrue}
-  \renewcommand\chaptitlefont{\fontsize{25}{35}\selectfont\raggedleft}
-  \renewcommand\chapnumfont{\fontsize{1.5in}{0in}\selectfont\color{AUdefault}}
+  \renewcommand\chaptitlefont{\fontsize{25}{25}\selectfont\raggedleft}
+  \renewcommand\chapnumfont{\fontsize{1in}{0in}\selectfont\color{AUdefault}}
    \renewcommand\printchaptertitle[1]{%
     \noindent
     \ifchapternonum
@@ -232,3 +232,11 @@ ItalicFont  = ./Fonts/AUPassata_Italic
 
 
 \usepackage{neuralnetwork}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.8}
+\def\layersep{1.5cm}
+
+% FOR CONFUSION TABLES
+
+
