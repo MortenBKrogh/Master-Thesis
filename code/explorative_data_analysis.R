@@ -284,7 +284,8 @@ p_rate <- data %>% filter(!is.na(default)) %>% ggplot(aes(int_rt)) + geom_histog
 
 pw5 <- (p_cred | p_cltv |p_nltv) / (p_dtin | p_upba | p_rate) +
   plot_layout(guides="collect") + plot_annotation(theme = theme(legend.position = 'bottom'),
-                                                  caption = 'Data: Freddie Mac Single Family Loan-Level 2019.')
+                                                  caption = 'Data: Freddie Mac Single Family Loan-Level 2019.',
+                                                  tag_levels = "I")
 
 # save to disk
 ggsave(pw5, filename = "Figures/pw_5.pdf", width=8, height=6, dpi=600)
