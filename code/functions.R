@@ -141,12 +141,104 @@ prepare_FMdata <- function(START_YEAR, END_YEAR, sample=TRUE) {
       variable_names <- colnames(Final)
       readr::write_delim(Final, path = paste0(getwd(), "/data/Final_", i + START_YEAR - 1, '.txt'), col_names = FALSE, delim = "|")
     }}else if (sample == FALSE) {
+    
       origination_files <- list.files(path=paste0(getwd(), "/data"), pattern="^historical_data1_Q.*\\.txt", full.names=TRUE)
       performance_files <- list.files(path=paste0(getwd(), "/data"), pattern="^historical_data1_time_.*\\.txt", full.names=TRUE)
       
       for (i in START_YEAR:length(origination_files)) {
         # loading the origination datset
         # i <- 9
+        # origination <- read_delim(origination_files[i], 
+        #                           "|", escape_double = FALSE, col_names = origination_names, 
+        #                           trim_ws = TRUE) %>% 
+        #   select(id_loan, dt_first_pi, everything()) %>% # drop_na(fico, orig_upb, int_rt) %>%
+        #   mutate(dt_first_pi     = as.Date(paste0(as.character(dt_first_pi),"01"), format = "%Y%m%d"),
+        #          dt_matr = as.Date(paste0(as.character(dt_matr),"01"), format = "%Y%m%d"), 
+        #          fico = replace(fico, fico == 9999, NA),
+        #          flag_fthb = replace(flag_fthb, flag_fthb == 9, 'Y'),
+        #          occpy_sts = replace(occpy_sts, occpy_sts == 9, NA),
+        #          cltv = replace(cltv, cltv == 999, NA),
+        #          dti = replace(dti, dti == 999, NA),
+        #          ltv = replace(ltv, ltv == 999, NA),
+        #          channel = replace(channel, channel == 9, NA),
+        #          prop_type = replace(prop_type, prop_type == 99, NA),
+        #          loan_purpose = replace(loan_purpose, loan_purpose == 9, NA),
+        #          cnt_borr = replace(cnt_borr, cnt_borr == 99, NA))
+        # 
+        # # Loading the performance dataset
+        # performance <- read_delim(paste0(performance_files[i]), 
+        #                           "|", escape_double = FALSE, col_names = performance_names, 
+        #                           trim_ws = TRUE) %>% 
+        #   mutate(delq_sts = replace(delq_sts, delq_sts == '   ', NA),
+        #          repch_flag = replace(repch_flag, repch_flag == ' ', NA),
+        #          svcg_cycle = as.Date(paste0(as.character(svcg_cycle),"01"), format = "%Y%m%d"))# %>% sample_n(1000)
+        # 
+        # 
+        # # clean performance data Maybe wait with dropping NA's til the data is combined in the final dataset
+        # # performance_v1 <- performance %>% # drop_na(current_upb, delq_sts, current_int_rt) %>% 
+        # #   mutate(svcg_cycle = as.Date(paste0(as.character(svcg_cycle),"01"), format = "%Y%m%d")) %>%
+        # #   dplyr::group_by(id_loan) %>% filter(row_number() >= (n())) %>%
+        # #   replace_na(list())
+        #                     
+        # performance$temp   = if_else(performance$delq_sts >= 3, performance$svcg_cycle, as.Date(NA))
+        # performance$temp_2 = if_else(performance$delq_sts == 1, performance$svcg_cycle, as.Date(NA))
+        # performance$temp_3 = if_else(performance$delq_sts == 1, performance$loan_age, as.numeric(NA))
+        # performance$temp_4 = if_else(performance$delq_sts >= 3, performance$loan_age, as.numeric(NA))
+        # 
+        # # Select and calculate performance features 
+        # # performance_features <- performance %>%
+        # #   dplyr::group_by(id_loan) %>%
+        # #   dplyr::mutate('#current' = sum(delq_sts == 0, na.rm = TRUE),
+        # #                 '#30_dl' = sum(delq_sts == 1, na.rm = TRUE),
+        # #                 '#60_dl' = sum(delq_sts == 2, na.rm = TRUE),
+        # #                 '#90+_dl' = sum(delq_sts >= 3, na.rm = TRUE),
+        # #                 'current' = if_else(n() == sum(delq_sts == 0, na.rm=TRUE), TRUE, FALSE),
+        # #                 'default' = if_else(sum(delq_sts >= 3, na.rm = TRUE) > 0, TRUE, FALSE),
+        # #                 'dt_default'   = dplyr::first(na.omit(temp)),
+        # #                 'dt_delq' =dplyr::first(na.omit(temp_2)),
+        # #                 'delq_age' =dplyr::first(na.omit(temp_3)),
+        # #                 'default_age' =dplyr::first(na.omit(temp_4)),
+        # #                 'delq_remng' =dplyr::first(na.omit(temp_5)),
+        # #                 'default_remng' =dplyr::first(na.omit(temp_6)),
+        # #                 'pct_change_bal' = ((current_upb - lag(current_upb, 1)) / lag(current_upb, 1) )* 100) %>%
+        # #   filter(dplyr::row_number() >= (n() - 11)) %>%  
+        # #   dplyr::mutate('#current_l12' = sum(delq_sts == 0, na.rm = TRUE),
+        # #                 '#30_dl_l12' = sum(delq_sts == 1, na.rm = TRUE),
+        # #                 '#60_dl_l12' = sum(delq_sts == 2, na.rm = TRUE),
+        # #                 '#90+_dl_l12' = sum(delq_sts >= 3, na.rm = TRUE)) %>%
+        # #   filter(row_number() >= (n())) %>% 
+        # #   select(id_loan, default, dt_default, dt_delq, delq_age, default_age, delq_remng, default_remng, 
+        # #          current, delq_sts, current_upb, current_int_rt, loan_age, mths_remng, cd_zero_bal, 
+        # #          `#current`, `#30_dl`, `#60_dl`, `#90+_dl`,
+        # #          `#current_l12`, `#30_dl_l12`, `#60_dl_l12`, `#90+_dl_l12`)
+        # 
+        # performance_features <- performance %>%
+        #   dplyr::group_by(id_loan) %>%
+        #   dplyr::mutate(prev = lag(delq_sts, order_by=id_loan),
+        #                 survived = ifelse(prev != 0 & delq_sts == 0, 1, 0)) %>%
+        #   dplyr::mutate('#30_dl'     = sum(delq_sts == 1, na.rm = TRUE),
+        #                 '#60_dl'        = sum(delq_sts == 2, na.rm = TRUE),
+        #                 '#90+_dl' = sum(delq_sts >= 3, na.rm = TRUE),
+        #                 'first_dt_delq'       = dplyr::first(na.omit(temp_2)),
+        #                 'first_delq_age'      = dplyr::first(na.omit(temp_3)),
+        #                 'first_delq_mths_remng' = dplyr::first(na.omit(temp_4)),
+        #                 'first_eltv'     = dplyr::first(na.omit(dplyr::first(eltv))),
+        #                 'last_eltv'      = dplyr::last(na.omit(dplyr::last(eltv))),  
+        #                 'surv_binary'    = mean(survived, na.rm=T) > 0,
+        #                 '#surv'          = sum(survived, na.rm=T),
+        #                 'recovered'      = dplyr::last(delq_sts) == 0,
+        #                 'rt_change'      = dplyr::first(current_int_rt) - dplyr::last(current_int_rt),
+        #                 'default_v0'     = if_else(sum(delq_sts >= 3, na.rm = TRUE) > 0, TRUE, FALSE),
+        #                 'dt_default_v0'  = dplyr::first(na.omit(temp)),
+        #                 'default_v1'     = if_else(dplyr::last(delq_sts) != 0 & sum(delq_sts >= 3, na.rm = TRUE), TRUE, FALSE),
+        #                 'dt_default_v1'  = dplyr::first(na.omit(if_else(dplyr::last(delq_sts) != 0 & sum(delq_sts >= 3, na.rm = TRUE) , svcg_cycle, as.Date(NA))))) %>% 
+        #   filter(dplyr::row_number() >= (n() - 11)) %>%  
+        #   dplyr::mutate('#current_l12' = sum(delq_sts == 0, na.rm = TRUE),
+        #                 '#30_dl_l12' = sum(delq_sts == 1, na.rm = TRUE),
+        #                 '#60_dl_l12' = sum(delq_sts == 2, na.rm = TRUE)) %>%
+        #   filter(row_number() >= (n())) 
+        
+        
         origination <- read_delim(origination_files[i], 
                                   "|", escape_double = FALSE, col_names = origination_names, 
                                   trim_ws = TRUE) %>% 
@@ -170,7 +262,7 @@ prepare_FMdata <- function(START_YEAR, END_YEAR, sample=TRUE) {
                                   trim_ws = TRUE) %>% 
           mutate(delq_sts = replace(delq_sts, delq_sts == '   ', NA),
                  repch_flag = replace(repch_flag, repch_flag == ' ', NA),
-                 svcg_cycle = as.Date(paste0(as.character(svcg_cycle),"01"), format = "%Y%m%d"))
+                 svcg_cycle = as.Date(paste0(as.character(svcg_cycle),"01"), format = "%Y%m%d"))# %>% sample_n(1000)
         
         
         # clean performance data Maybe wait with dropping NA's til the data is combined in the final dataset
@@ -183,35 +275,88 @@ prepare_FMdata <- function(START_YEAR, END_YEAR, sample=TRUE) {
         performance$temp_2 = if_else(performance$delq_sts == 1, performance$svcg_cycle, as.Date(NA))
         performance$temp_3 = if_else(performance$delq_sts == 1, performance$loan_age, as.numeric(NA))
         performance$temp_4 = if_else(performance$delq_sts >= 3, performance$loan_age, as.numeric(NA))
-        performance$temp_5 = if_else(performance$delq_sts == 1, performance$mths_remng, as.numeric(NA))
-        performance$temp_6 = if_else(performance$delq_sts >= 3, performance$mths_remng, as.numeric(NA))
         
         # Select and calculate performance features 
-        performance_features <- performance %>%
+        # performance_features <- performance %>%
+        #   dplyr::group_by(id_loan) %>%
+        #   dplyr::mutate('#current' = sum(delq_sts == 0, na.rm = TRUE),
+        #                 '#30_dl' = sum(delq_sts == 1, na.rm = TRUE),
+        #                 '#60_dl' = sum(delq_sts == 2, na.rm = TRUE),
+        #                 '#90+_dl' = sum(delq_sts >= 3, na.rm = TRUE),
+        #                 'current' = if_else(n() == sum(delq_sts == 0, na.rm=TRUE), TRUE, FALSE),
+        #                 'default' = if_else(sum(delq_sts >= 3, na.rm = TRUE) > 0, TRUE, FALSE),
+        #                 'dt_default'   = dplyr::first(na.omit(temp)),
+        #                 'dt_delq' =dplyr::first(na.omit(temp_2)),
+        #                 'delq_age' =dplyr::first(na.omit(temp_3)),
+        #                 'default_age' =dplyr::first(na.omit(temp_4)),
+        #                 'delq_remng' =dplyr::first(na.omit(temp_5)),
+        #                 'default_remng' =dplyr::first(na.omit(temp_6)),
+        #                 'pct_change_bal' = ((current_upb - lag(current_upb, 1)) / lag(current_upb, 1) )* 100) %>%
+        #   filter(dplyr::row_number() >= (n() - 11)) %>%  
+        #   dplyr::mutate('#current_l12' = sum(delq_sts == 0, na.rm = TRUE),
+        #                 '#30_dl_l12' = sum(delq_sts == 1, na.rm = TRUE),
+        #                 '#60_dl_l12' = sum(delq_sts == 2, na.rm = TRUE),
+        #                 '#90+_dl_l12' = sum(delq_sts >= 3, na.rm = TRUE)) %>%
+        #   filter(row_number() >= (n())) %>% 
+        #   select(id_loan, default, dt_default, dt_delq, delq_age, default_age, delq_remng, default_remng, 
+        #          current, delq_sts, current_upb, current_int_rt, loan_age, mths_remng, cd_zero_bal, 
+        #          `#current`, `#30_dl`, `#60_dl`, `#90+_dl`,
+        #          `#current_l12`, `#30_dl_l12`, `#60_dl_l12`, `#90+_dl_l12`)
+        
+        # performance_features <- performance %>%
+        #   dplyr::group_by(id_loan) %>%
+        #   dplyr::mutate(prev = lag(delq_sts, order_by=id_loan),
+        #                 survived = ifelse(prev != 0 & delq_sts == 0, 1, 0)) %>%
+        #   dplyr::mutate('#30_dl'                = sum(delq_sts == 1, na.rm = TRUE),
+        #                 '#60_dl'                = sum(delq_sts == 2, na.rm = TRUE),
+        #                 '#90+_dl'               = sum(delq_sts >= 3, na.rm = TRUE),
+        #                 'first_dt_delq'         = dplyr::first(na.omit(temp_2)),
+        #                 'first_delq_age'        = dplyr::first(na.omit(temp_3)),
+        #                 'first_delq_mths_remng' = dplyr::first(na.omit(temp_4)),
+        #                 'first_eltv'            = dplyr::first(na.omit(dplyr::first(eltv))),
+        #                 'last_eltv'             = dplyr::last(na.omit(dplyr::last(eltv))),  
+        #                 'surv_binary'           = mean(survived, na.rm=T) > 0,
+        #                 '#surv'                 = sum(survived, na.rm=T),
+        #                 'recovered'             = dplyr::last(delq_sts) == 0,
+        #                 'rt_change'             = dplyr::first(current_int_rt) - dplyr::last(current_int_rt),
+        #                 'default_v0'            = if_else(sum(delq_sts >= 3, na.rm = TRUE) > 0, TRUE, FALSE),
+        #                 'dt_default_v0'         = dplyr::first(na.omit(temp)),
+        #                 'default_v1'            = if_else(dplyr::last(delq_sts) != 0 & sum(delq_sts >= 3, na.rm = TRUE) , TRUE, FALSE)) %>%
+        #   filter(dplyr::row_number() >= (n() - 11)) %>%  
+        #   dplyr::mutate('dt_default_v1'        = if_else(dplyr::first(na.omit(default_v1)), svcg_cycle, as.Date(NA)),
+        #                 '#current_l12' = sum(delq_sts == 0, na.rm = TRUE),
+        #                 '#30_dl_l12' = sum(delq_sts == 1, na.rm = TRUE),
+        #                 '#60_dl_l12' = sum(delq_sts >= 2, na.rm = TRUE)) %>%
+        #   filter(row_number() >= (n())) 
+        # 
+        # performance1 <- performance %>% filter(id_loan == 'F107Q1000051')
+        
+        performance_features <- performance %>% 
           dplyr::group_by(id_loan) %>%
-          dplyr::mutate('#current' = sum(delq_sts == 0, na.rm = TRUE),
-                        '#30_dl' = sum(delq_sts == 1, na.rm = TRUE),
-                        '#60_dl' = sum(delq_sts == 2, na.rm = TRUE),
-                        '#90+_dl' = sum(delq_sts >= 3, na.rm = TRUE),
-                        'current' = if_else(n() == sum(delq_sts == 0, na.rm=TRUE), TRUE, FALSE),
-                        'default' = if_else(sum(delq_sts >= 3, na.rm = TRUE) > 0, TRUE, FALSE),
-                        'dt_default'   = dplyr::first(na.omit(temp)),
-                        'dt_delq' =dplyr::first(na.omit(temp_2)),
-                        'delq_age' =dplyr::first(na.omit(temp_3)),
-                        'default_age' =dplyr::first(na.omit(temp_4)),
-                        'delq_remng' =dplyr::first(na.omit(temp_5)),
-                        'default_remng' =dplyr::first(na.omit(temp_6)),
-                        'pct_change_bal' = ((current_upb - lag(current_upb, 1)) / lag(current_upb, 1) )* 100) %>%
+          dplyr::mutate(prev = lag(delq_sts, order_by=id_loan),
+                        survived = ifelse(prev != 0 & delq_sts == 0, 1, 0)) %>%
+          dplyr::mutate('#30_dl'                = sum(delq_sts == 1, na.rm = TRUE),
+                        '#60_dl'                = sum(delq_sts == 2, na.rm = TRUE),
+                        '#90+_dl'               = sum(delq_sts >= 3, na.rm = TRUE),
+                        'first_dt_delq'         = dplyr::first(na.omit(temp_2)),
+                        'first_delq_age'        = dplyr::first(na.omit(temp_3)),
+                        'first_delq_mths_remng' = dplyr::first(na.omit(temp_4)),
+                        'first_eltv'            = dplyr::first(na.omit(dplyr::first(eltv))),
+                        'last_eltv'             = dplyr::last(na.omit(dplyr::last(eltv))),  
+                        'surv_binary'           = mean(survived, na.rm=T) > 0,
+                        '#surv'                 = sum(survived, na.rm=T),
+                        'recovered'             = dplyr::last(delq_sts) == 0,
+                        'rt_change'             = dplyr::first(current_int_rt) - dplyr::last(current_int_rt),
+                        'default_v0'            = if_else(sum(delq_sts >= 3, na.rm = TRUE) > 0, TRUE, FALSE),
+                        'dt_default_v0'         = dplyr::first(na.omit(temp)),
+                        'default_v1'            = if_else(dplyr::last(delq_sts) != 0 & sum(delq_sts >= 3, na.rm = TRUE) , TRUE, FALSE)) %>%
           filter(dplyr::row_number() >= (n() - 11)) %>%  
-          dplyr::mutate('#current_l12' = sum(delq_sts == 0, na.rm = TRUE),
+          dplyr::mutate('dt_default_v1'        = if_else(dplyr::first(na.omit(default_v1)), dplyr::first(svcg_cycle[default_v1==TRUE]), as.Date(NA)),
+                        '#current_l12' = sum(delq_sts == 0, na.rm = TRUE),
                         '#30_dl_l12' = sum(delq_sts == 1, na.rm = TRUE),
-                        '#60_dl_l12' = sum(delq_sts == 2, na.rm = TRUE),
-                        '#90+_dl_l12' = sum(delq_sts >= 3, na.rm = TRUE)) %>%
-          filter(row_number() >= (n())) %>% 
-          select(id_loan, default, dt_default, dt_delq, delq_age, default_age, delq_remng, default_remng, 
-                 current, delq_sts, current_upb, current_int_rt, loan_age, mths_remng, cd_zero_bal, 
-                 `#current`, `#30_dl`, `#60_dl`, `#90+_dl`,
-                 `#current_l12`, `#30_dl_l12`, `#60_dl_l12`, `#90+_dl_l12`)
+                        '#60_dl_l12' = sum(delq_sts >= 2, na.rm = TRUE)) %>%
+          filter(row_number() >= (n())) 
+        
         
         
         # Merge origination- and performance feature data
@@ -219,7 +364,7 @@ prepare_FMdata <- function(START_YEAR, END_YEAR, sample=TRUE) {
         # drop_na(current_upb, delq_sts, current_int_rt, current_upb, cd_zero_bal, default)
         
         variable_names <- colnames(Final)
-        readr::write_delim(Final, path = paste0(getwd(), "/data/Final_", i, '.txt'), col_names = FALSE, delim = "|")
+        readr::write_delim(Final, path = paste0(getwd(), "/data/Final_v2_", i, '.txt'), col_names = FALSE, delim = "|")
       }
       
     }

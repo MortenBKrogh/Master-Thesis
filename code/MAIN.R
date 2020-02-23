@@ -9,27 +9,47 @@ cat('Packages loaded.')
 #Clearing variables
 rm(list=ls())
 
-# source script where functions to download and prepare data are located
+# source script where functions to download and prepare data are locate
 source('code/functions.R')
 
 # Download  sample files and place them in the data folder
 # Data(2012, 2018, sample=FALSE)
 
 # Then we need to do some preprocessing of the original data aswell as calculating performance features
-var_names <- prepare_FMdata(1, 79, sample=FALSE
 
-var_names
+# var_names <- prepare_FMdata(64, 79, sample=FALSE)
+
+
 # Load 'raw' data
-var_names <- c("id_loan","dt_first_pi","fico","flag_fthb","dt_matr","cd_msa","mi_pct","cnt_units",
-               "occpy_sts","cltv","dti","orig_upb","ltv","int_rt","channel","ppmt_pnlty",
-               "prod_type","st","prop_type","zipcode","loan_purpose","orig_loan_term","cnt_borr","seller_name",
-               "servicer_name","flag_sc","default", "dt_default", "dt_delq", "delq_age", "default_age", "delq_remng",
-               "default_remng","current","delq_sts","current_upb","current_int_rt","loan_age",
-               "mths_remng","cd_zero_bal","#current","#30_dl","#60_dl","#90+_dl","#current_l12","#30_dl_l12",
-               "#60_dl_l12","#90+_dl_l12")
+# Commented var_names are for the Final_1:79.txt files while the uncommented are for the Final_v2_1:79.txt files.
 
-FM_data_files <- list.files(path=paste0(getwd(), "/data"), pattern="^Final_.*\\.txt", full.names=TRUE)
-FM_data <- ldply(FM_data_files, data.table::fread, sep = "|", header = FALSE, col.names = var_names, stringsAsFactors = TRUE) #readr::read_delim("data/Final_1999.txt", delim = " ", col_names = FALSE)
+# var_names <- c("id_loan","dt_first_pi","fico","flag_fthb","dt_matr","cd_msa","mi_pct","cnt_units",
+#                "occpy_sts","cltv","dti","orig_upb","ltv","int_rt","channel","ppmt_pnlty",
+#                "prod_type","st","prop_type","zipcode","loan_purpose","orig_loan_term","cnt_borr","seller_name",
+#                "servicer_name","flag_sc","default", "dt_default", "dt_delq", "delq_age", "default_age", "delq_remng",
+#                "default_remng","current","delq_sts","current_upb","current_int_rt","loan_age",
+#                "mths_remng","cd_zero_bal","#current","#30_dl","#60_dl","#90+_dl","#current_l12","#30_dl_l12",
+#                "#60_dl_l12","#90+_dl_l12")
+
+var_names <- c("id_loan", "dt_first_pi", "fico", "flag_fthb", "dt_matr", "cd_msa", 
+               "mi_pct", "cnt_units", "occpy_sts", "cltv", "dti", "orig_upb", 
+               "ltv", "int_rt", "channel", "ppmt_pnlty", "prod_type", "st", 
+               "prop_type", "zipcode", "loan_purpose", "orig_loan_term", "cnt_borr", 
+               "seller_name", "servicer_name", "flag_sc", "svcg_cycle", "current_upb", 
+               "delq_sts", "loan_age", "mths_remng", "repch_flag", "flag_mod", 
+               "cd_zero_bal", "dt_zero_bal", "current_int_rt", "non_int_brng_upb", 
+               "dt_lst_pi", "mi_recoveries", "net_sale_proceeds", "non_mi_recoveries", 
+               "expenses", "legal_costs", "maint_pres_costs", "taxes_ins_costs", 
+               "misc_costs", "actual_loss", "modcost", "stepmod_ind", "dpm_ind", 
+               "eltv", "temp", "temp_2", "temp_3", "temp_4", "prev", "survived", 
+               "#30_dl", "#60_dl", "#90+_dl", "first_dt_delq", "first_delq_age", 
+               "first_delq_mths_remng", "first_eltv", "last_eltv", "surv_binary", 
+               "#surv", "recovered", "rt_change", "default_v0", "dt_default_v0", 
+               "default_v1", "dt_default_v1", "#current_l12", "#30_dl_l12", 
+               "#60_dl_l12")
+
+FM_data_files <- list.files(path=paste0(getwd(), "/data"), pattern="^Final_v2.*\\.txt", full.names=TRUE)
+FM_data <- ldply(FM_data_files, data.table::fread, sep = "|", header = FALSE, col.names = var_names, stringsAsFactors = TRUE) 
 
 #FM_data$default <- as.numeric(FM_data$default)
 #FM_data$delq_sts <- as.character(FM_data$delq_sts)
