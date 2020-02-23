@@ -188,15 +188,48 @@ p_st <- data %>%  dplyr::count(st,default) %>% mutate(n_pct = n / sum(n) * 100) 
   geom_col(aes(fill=default), show.legend = F) + 
   labs(#title="Default rate by state", 
        x = NULL, y = '%',
-       subtitle = '1999 - 2018',
-       caption = 'Data: Freddie Mac Single Home Loan Level Dataset') + 
-  thd + 
+       subtitle = '1999 - 2018'
+       #caption = 'Data: Freddie Mac Single Home Loan Level Dataset'
+       )+ 
+  thd + th +
   scale_fill_manual(values = c(basem3, basem4)) + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
   #geom_text(aes(label=round(n_pct, digits = 2)),angle = 90, vjust=0.5, hjust=-0.4, color="darkorange", size=2.5)
-p_st
+
+# top five states on default
+top_state <- data %>% dplyr::count(st) %>% top_n(5)
+
+dat <- tibble()
+first_year = 1999
+last_year = 2018
+for (j in 1:5) {
+  for (i in first_year:last_year) {
+    dat[(i-(first_year-1)),1] <- i
+    dat[(i-(first_year-1)),1+j] <- data %>% select(st, dt_first_pi, dt_zero_bal, default) %>% filter(st == top_state[[1]][j]) %>% 
+      drop_na(dt_zero_bal) %>%  # slå til hvis du kun vil lave grafen på lån der er afsluttet..
+      #mutate(dt_zero_bal = if_else(is.na(dt_zero_bal), 201809, as.integer(dt_zero_bal)))
+      mutate(dt_first_pi = format(as.Date(dt_first_pi, format = '%Y-%m-%d'), '%Y'),
+             dt_zero_bal = format(as.Date(paste0(as.character(dt_zero_bal),"01"), format = "%Y%m%d"), '%Y')) %>%
+      mutate(i = if_else(data.table::between(x = paste0(i), lower = dt_first_pi, upper = dt_zero_bal), TRUE, FALSE)) %>%
+      dplyr::count(i, default) %>% 
+      filter(i == TRUE) %>% 
+      mutate(total = sum(n)) %>% 
+      transmute(default_pct = n / total *100) %>%
+      filter(row_number() >= n()) 
+  }
+}
+colnames(dat) <- c('year', top_state[[1]][1], top_state[[1]][2], top_state[[1]][3], top_state[[1]][4], top_state[[1]][5])
+dat_long = reshape2::melt(data = dat, id=c("year"))
+
+p_st_2 <- dat_long %>% ggplot(aes(x = year, y= value, color = variable)) + geom_line()  + geom_point(aes(shape = variable), color = basem4)+ labs(title="", x = NULL, y = '%') + thd  + th + scale_color_manual(values = c(basem3,basem3,basem3,basem3,basem3)) + theme(legend.title = element_blank(), legend.key  = element_blank()) + labs(caption = 'Data: Freddie Mac Single Home Loan Level Dataset') 
+
+
+pw3 = p_st / p_st_2 + plot_annotation(#title ='Credit Behavior',
+  tag_levels = "I",
+  theme = theme(plot.margin     = unit(c(.5, 0.1, 0.1, 0.1), "cm")))
+
 # save to disk
-ggsave(p_st, filename = "Figures/pw_3.pdf", width=8, height=6, dpi=600)
+ggsave(pw3, filename = "Figures/pw_3.pdf", width=8, height=6, dpi=600)
 
 
 # patchwork figure 4)
