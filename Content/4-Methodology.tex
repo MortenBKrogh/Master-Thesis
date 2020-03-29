@@ -1,19 +1,16 @@
-\chapter{Methodology}
+\chapter{Methodology}\label{ch:4}
 This chapter provides the general background on the methodology applied in this thesis. First introducing the industry standard for default predictions and this thesis' benchmark model, that is the approach of logistic regression, then the chapter introduces Artificial Neural Networks as and alternative approach for in this case classification of defaults and non-defaults. At last the Local Interpretable Model-agnostic Explanations (LIME) method for explaining >>black-box<< models is introduced.
-    
     \section{Logistic Regression}
     The logistic regression was proposed by \cite{David_Cox_1958} and is a linear classifier, which models the probability of the possible classes in the target variable. In this thesis there are two classes of the target variable, that is >>Default<< and >>Non-Default<<, thus the problem is a binary classification problem. 
     Logistic regression apply linear functions in the predictors, and since the outcome modeled is probabilities, they have to lie between $[0,1]$, several functions are available to ensure this, the logistic regression model uses the logistic function. 
     
-    le Let $\gamma$ be the dependent variable and $\boldsymbol{X} = \left(X_1, \dots, X_p\right)$ denote the predictor variables then we the logistic regression model is given by equation \ref{eq:logreg_1}:
-    
+    Let $\gamma$ be the dependent variable and $\boldsymbol{X} = \left(X_1, \dots, X_p\right)$ denote the predictor variables then we the logistic regression model is given by equation \ref{eq:logreg_1}:
     
     \begin{flalign} \label{eq:logreg_1}
     p_1\left( \boldsymbol{X} \right) = P \left( \gamma = 1 \mid \boldsymbol{X} \right) = \frac{e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}}{1+e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}} = \frac{e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X}  }}{1 + e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X^{\prime}} }}
     \end{flalign}
-
+    
     $\beta_0$, $\boldsymbol{\beta}$ are the parameters of the model. The model applies the logistic function $f\left( x \right) = \frac{e^x}{1+e^x}$ to $\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X}$, the logistic function is depicted in Figure \ref{fig:logistic_function}, the figure exemplifies how the function is mapping values in the interval $\left[ -\infty, \infty \right]$ to always lie in the interval $\left[ 0,1 \right]$.
-
 \begin{figure}[H]
     \centering
 \begin{tikzpicture}
@@ -42,7 +39,6 @@ This chapter provides the general background on the methodology applied in this 
     \caption{The Logistic Function}
     \label{fig:logistic_function}
 \end{figure}
-
 The odds are given by equation \ref{eq:logreg_odds}
 
 \begin{flalign} \label{eq:logreg_odds}
@@ -77,21 +73,97 @@ l\left(\beta_0, \boldsymbol{\beta} \right) & = \log \left( \mathcal{L} \left(\be
 
 In Equation \ref{eq:logreg_LLK} $n$ denotes the number of observations in the data feed to the model. The model parameters that maximize the log-likelihood function above is denoted $\hat{\beta}_0$ and $\hat{\boldsymbol{\beta}}$, these estimates are then used when predicting the probabilities for an event happening, this event is in the case of the thesis the probability of a costumer defaulting on their mortgage. The estimated probabilities are obtained by using Equation  \ref{eq:logreg_estimates}
 
-
 \begin{flalign}
 \hat{p}_1 \left(\boldsymbol{X} \right) = \frac{e^{\hat{\beta}_0 + \hat{\boldsymbol{\beta}}^{\top}\boldsymbol{X}}}{1 + e^{\hat{\beta}_0 + \hat{\boldsymbol{\beta}}^{\top}\boldsymbol{X}}}. \label{eq:logreg_estimates}
 \end{flalign}
 
-
-    
-    
     \section{Artificial Neural Networks}
-
-\begin{figure}[H]
-    \caption{Neural Network Visualized}
+    The groundwork of what later should become known as Artificial Neural Networks was conducted from the early 1940's and onwards. \cite{mcculloch43a} proposed a mathematical model for modelling the behavior of a biological neuron in the human brain, the proposed artificial neuron was capable of solving simple binary tasks, however it was not learning. Then \cite{hebb1949} suggested that the human brain learns by intensifying connections between neurons that "work together" and reduces the ones that does not. This postulate of how humans learns  led as an inspiration of the work of \cite{Rosenblatt1958:}, who proposed the Perceptron, illustrated in Figure \ref{fig:Perceptron_illustration}, this was the first ANN, which were able to adjust its own weights, that is finding the optimal weights in order to achieve the desired behavior of the Perceptron, in short it was learning. This was a short introduction to the beginning of the field of ANN, in the following we will further explain how the ANN is modelled and estimated.  
+    \subsection{Perceptron}\label{subsec:Perceptron}
+    The Perceptron introduced above, has a simple activation rule, which is the basis of modern ANNs. We have a n-dimensional input $\boldsymbol{X}=(x_1, \dots, x_n)$, the weighted sum of the n-dimensional input, $x_i$, together with its associated weights, $w_i$ and a bias term is computed as shown in equation \eqref{eq:Perceptron_1} below.
+    \begin{figure}[h]
     \centering
-    \label{fig:my_label}
-\begin{neuralnetwork}[height=12]
+    \begin{tikzpicture}[
+init/.style={
+  draw,
+  circle,
+  inner sep=2pt,
+  font=\Huge,
+  join = by -latex
+},
+squa/.style={
+  draw,
+  inner sep=2pt,
+  font=\Large,
+  join = by -latex
+},
+start chain=2,node distance=13mm
+]
+\node[on chain=2] 
+  (x2) {\vdots};
+\node[on chain=2,join=by o-latex] 
+  {\vdots};
+\node[on chain=2,init] (sigma) 
+  {$\displaystyle\Sigma$};
+\node[on chain=2,squa,label=above:{\parbox{2cm}{\centering Activation \\ function}}]   
+  {$f$};
+\node[on chain=2,label=above:Output,join=by -latex] 
+  {$y$};
+\begin{scope}[start chain=1]
+\node[on chain=1] at (0,1.5cm) 
+  (x1) {$x_1$};
+\node[on chain=1,join=by o-latex] 
+  (w1) {$w_1$};
+\end{scope}
+\begin{scope}[start chain=3]
+\node[on chain=3] at (0,-1.5cm) 
+  (x3) {$x_n$};
+\node[on chain=3,label=below:Weights,join=by o-latex] 
+  (w3) {$w_n$};
+\end{scope}
+\node[label=above:\parbox{2cm}{\centering Bias \\ $b$}] at (sigma|-w1) (b) {};
+
+\draw[-latex] (w1) -- (sigma);
+\draw[-latex] (w3) -- (sigma);
+\draw[o-latex] (b) -- (sigma);
+
+\draw[decorate,decoration={brace,mirror}] (x1.north west) -- node[left=10pt] {Inputs} (x3.south west);
+\end{tikzpicture}
+
+    \caption{A single perceptron in a Artificial Neural Network. $x_n$ denotes the input variables and $w_n$ the associated weights, these are combined as $ \left(x^{(0)}_1 w^{(0)}_1 + \dots + x^{(0)}_n w^{(0)}_n + b_0\right)$, where $b_0$ is the bias term. This weighted average + bias is then sent to the affine transformation shown in equation \eqref{eq:Perceptron_2}.}
+    
+    \label{fig:Perceptron_illustration}
+\end{figure}
+    \begin{flalign} \label{eq:Perceptron_1}
+    z & = \sum_{i=1}^n \left(w_i x_i \right) + b 
+    \end{flalign}
+    The weight, $w_i$, is often denoted as the \textit{preactivation}. In order to simplify notation the bias, $b$, is often substituted by an equivalent input term $x_0=1$, with the associated weight $w_0 = b$, which is the dot product of the weight vector $\boldsymbol{W}=\left(w_1, \dots, w_n \right)$ and the vector of inputs $\boldsymbol{X}=(x_1, \dots, x_n)$. $z$ is then send through an step function shown in equation \eqref{eq:Perceptron_2}, which calculates the output of the Perceptron, in this setting a step function. 
+    \begin{flalign}\label{eq:Perceptron_2}
+    y & = \begin{cases} 1, \qquad if z \ge 0, \\
+                        0, \qquad otherwise
+        \end{cases} 
+    \end{flalign}
+    Even though \citeauthor{Rosenblatt1958:}'s Perceptron is exciting, one even more exciting innovation from \cite{Rosenblatt1958:} is the algorithm, that made it possible for the model to find and adjust its own weights in order to solve the classification problem. The update algorithm take as given a training pair $(x, y)$, where $x$ is the input vector and $y$ is the associated output vector, then the parameters of the model (weights and bias) are learned through the rule presented in equation \eqref{eq:Perceptron_3}.
+    \begin{flalign} \label{eq:Perceptron_3}
+    w_i^{new} & = w_i^{old} - \eta \left(\hat{y} - y \right) x_i
+    \end{flalign}
+    in equation \eqref{eq:Perceptron_3} $\hat{y}$ is the proposed output of the Perceptron, $y$ is the target output, $x_i$ and $w_i$ is the i'th input and i'th weight at the latest iteration, and lastly $\eta$ is a scaling, which adjusts the scope of the modification in each iteration. 
+    
+    Even though the discovery of the Perceptron is very exciting it has its limitations. \cite{Min69} showed that a single layer Perceptron, was unable to solve non-linear separable problems. Multi-Layer Perceptrons (MLP) illustrated in Figure \ref{fig:NN1}, is a development of the Single Layer Perceptron, that introduce one or several intermediate layers between the input- and output layer, these intermediate layers are called hidden layers, in other words we are combining several Perceptrons. 
+    
+    The MLP is able of solving non-linear separable problems, since in every layer the pre-activation is succeeded by a non-linear transformation, that projects the input vector into a linearly separable space. However, even though the MLP was able of solving the non-linear problem, \cite{Min69} also showed that the update algorithm proposed by \cite{Rosenblatt1958:} was restricted to the single layer perceptrons and thus was unable to independently learn how to solve the non-linear problem. 
+    Thus, another learning or updating algorithm was needed for this task. One such algorithm capable of updating the weights of an ANN with multiple hidden layers is the Backpropagation algorithm \cite{Rumelheart_1986}. The algorithm uses gradient descent for solving this task. We will take a closer look at the Backpropagation algorithm in section \ref{sec:NN_BP}, but now we will expand on the Multi-Layer Perceptron.
+    
+    \subsubsection{Multi-Layer Perceptron}
+    Take a look at Figure \ref{fig:NN1}, which depicts a MLP Neural Network. We can think of the network in Figure \ref{fig:NN1} as expanding the Perceptron to have multiple layers between the input layer and the output layer, where the neurons in the intermediate layers takes the output of the neurons in the previous layer as input. Every link between the i'th neuron in the previous layer say $l-1$ to the j'the neuron in the current layer say $l$ has a weight associated to it say $w_{ij}^{l}$, and all the weights stored in a matrix, $\boldsymbol{W}^l$. As the case with the single layer Perceptron, every layer in the MLP setting computes an affine transformation (see equation \ref{eq:MLP_1}), which goes as input to a nonlinearity, in the single layer Perceptron we used a step function, in the MLP case we usually use a more smooth function, this function is commonly refereed to as an activation function. Commonly used activation function will be discussed in section \ref{sec:NN_activation}. 
+    \begin{flalign}
+    \boldsymbol{z}^{(l)} &= \boldsymbol{W}^{(l)} \boldsymbol{h}^{(l-1)}\label{eq:MLP_1} \\
+    \boldsymbol{h}^{(l)} & = \sigma \left(\boldsymbol{z}^{(l)} \right) \label{eq:MLP_2}
+    \end{flalign}
+    Thus a single hidden layer in the MLP, can be thought of as a function that depends on some layer specific parameters, that is the weights $\boldsymbol{W^{(l)}}$, the bias $b^{(l)}$ and other parameters  as the number of neurons as well as choice of activation. Combining all these functions for each layer is resulting in the ouput vector $y$.
+    \begin{figure}[h]
+    \centering
+    \begin{neuralnetwork}[height=8]
         \newcommand{\x}[2]{$x_#2$}
         \newcommand{\y}[2]{$\hat{y}_#2$}
         \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
@@ -99,111 +171,183 @@ In Equation \ref{eq:logreg_LLK} $n$ denotes the number of observations in the da
         \newcommand{\hthird}[2]{\small $h^{(3)}_#3$}
         \inputlayer[count=3, bias=true, title=Input\\layer, text=\x]
         \hiddenlayer[count=8, bias=false, title=Hidden\\layer 1, text=\hfirst]{\linklayers}
-        \hiddenlayer[count=12, bias=false, title=Hidden\\layer 2, text=\hsecond] \linklayers
-        \hiddenlayer[count=12, bias=false, title=Hidden\\layer 3, text=\hthird] \linklayers 
+        \hiddenlayer[count=5, bias=false, title=Hidden\\layer 2, text=\hsecond] \linklayers
+        \hiddenlayer[count=5, bias=false, title=Hidden\\layer 3, text=\hthird] \linklayers 
         \outputlayer[count=1, title=Output\\layer, text=\y] \linklayers
     \end{neuralnetwork}
+    \caption{Combining multiple perceptrons a Feedforward Multilayer Perceptron Neural Network can be obtained. The bias term is denoted $x_0$ and $h^{(h)}_n$ denotes a single neuron.}
+    \label{fig:NN1}
 \end{figure}
-
-\begin{tikzpicture}[
-   shorten >=1pt,->,
-   draw=black!50,
-    node distance=\layersep,
-    every pin edge/.style={<-,shorten <=1pt},
-    neuron/.style={circle,fill=black!25,minimum size=17pt,inner sep=0pt},
-    input neuron/.style={neuron, fill=orange},
-    output neuron/.style={neuron, fill=orange},
-    hidden neuron/.style={neuron, fill=AUdefault},
-    annot/.style={text width=4em, text centered}
-]
-
-    % Draw the input layer nodes
-    \foreach \name / \y in {1,...,4}
-    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
-        \node[input neuron, pin=left:Input \#\y] (I-\name) at (0,-\y) {};
-
-    % set number of hidden layers
-    \newcommand\Nhidden{3}
-
-    % Draw the hidden layer nodes
-    \foreach \N in {1,...,\Nhidden} {
-       \foreach \y in {1,...,5} {
-          \path[yshift=0.5cm]
-              node[hidden neuron] (H\N-\y) at (\N*\layersep,-\y cm) {};
-           }
-    \node[annot,above of=H\N-1, node distance=1cm] (hl\N) {Hidden layer \N};
-    }
-
-    % Draw the output layer node
-    \node[output neuron,pin={[pin edge={->}]right:Output}, right of=H\Nhidden-3] (O) {};
-
-    % Connect every node in the input layer with every node in the
-    % hidden layer.
-    \foreach \source in {1,...,4}
-        \foreach \dest in {1,...,5}
-            \path (I-\source) edge (H1-\dest);
-
-    % connect all hidden stuff
-    \foreach [remember=\N as \lastN (initially 1)] \N in {2,...,\Nhidden}
-       \foreach \source in {1,...,5}
-           \foreach \dest in {1,...,5}
-               \path (H\lastN-\source) edge (H\N-\dest);
-
-    % Connect every node in the hidden layer with the output layer
-    \foreach \source in {1,...,5}
-        \path (H\Nhidden-\source) edge (O);
-
-    % Annotate the layers
-
-    \node[annot,left of=hl1] {Input layer};
-    \node[annot,right of=hl\Nhidden] {Output layer};
-\end{tikzpicture}
-
-
-
-
-        \subsection{Feed forward Neural Networks}
-
-        \subsection{Activation Functions}
-
-            \subsubsection{Sigmoid}
-
-            \subsubsection{Tanh}
-            
-            \subsubsection{ReLU}
-            
-        \subsection{Loss Functions}
-            
-            \subsubsection{Cross-Entropy Loss}
-        
-        \subsection{Training Neural Networks}
-            
-            \subsubsection{Gradient Descent}
-            
-            \subsubsection{Mini-Batch Gradient Descent}
-            
-            \subsubsection{Learning Rate}
-            
-            \subsubsection{Momentum}
-            
-            \subsubsection{Backpropagation}
-            
-            \subsubsection{Weight Initialisation}
-            
-            \lipsum[1-2]
+    \subsection{Activation Functions}\label{sec:NN_activation}
+    A key component of the Neural Network is the activation function, which decides whether or not a neuron should be activated. The activation function is performing an element-wise nonlinear transformations of the pre-activations (the weights), from the affine transformation, this makes the Neural Network able to solve nonlineary separable problems. 
     
-        \subsection{Layers}
-            
-            \subsection{Batch Normalisation}
-            
-        \subsection{Regularisation}
+    The idea is that the affine transformation and the activation function are working together during the training of the neural network. The affine transformation, $\boldsymbol{z}^{(l)}$ is based on the weights, which are learned during the training, these are then sent through the activation function which maps it into another space, where they are more easily separable. 
+    
+    Many activation functions are available, some commonly used are the Logistic, ReLU and tanh, these are depicted in Figure \ref{fig:activations}, where we visually denotes the difference between them. In the following we will shortly introduce the three activation functions.
+
+        \begin{figure}[t]
+    \centering
+    \begin{tikzpicture}[domain=-2.9:2.9]
+        % grid
+        \draw[very thin,color=gray] (-2.9, -1.1) grid (2.9, 2.9);
+        \foreach \x in {-2,-1,0,1,2}
+            \node[anchor=north] at (\x,-1.1) {\x};
+        \foreach \y in {-1,0,1,2}
+            \node[anchor=east] at (-2.9,\y) {\y};
+        % axes
+        \draw[->,thick] (-2.9, 0) -- (3.1, 0) node[right] {$x$};
+        \draw[->,thick] (0, -1.1) -- (0, 3.1) node[above] {$f(x)$};
+
+        % Logistic
+        \draw[thick, color=black]
+            plot (\x, { 1/(1+exp(-1 * \x)) })
+            node[right,yshift=-0.5em] {$logistic(x)$};
+        % Beta logistic
+        %\draw[color=purple] plot (\x, { 1/(1+exp(-.5 * \x)) })
+        %    node[right] {$logistic(a), beta=.5$};
+        % Tanh
+        \draw[thick, color=orange]
+            plot (\x, { ( 1 - exp(-2*\x) ) / ( 1 + exp(-2*\x) ) })
+            node[right,yshift=0.5em] {$tanh(x)$};
+        % ReLU
+        \draw[thick, color=AUdefault]
+            plot (\x, { max(0, \x) })
+            %node[right] {$ReLU(x)$};
+            node[yshift=1em] (a) {$ReLU(x)$};
         
-            \subsubsection{Dropout}
+    \end{tikzpicture}
+    \caption{Common activation functions: Logistic, tanh and ReLU.\label{fig:activations}}
+\end{figure}
+            \subsubsection{Logistic}
+            The Logistic function also denoted Sigmoid, is a function that takes a number and maps it to be between 0 and 1. It is defined as in equation \eqref{eq:AF_Logistic_1} and depicted in Figure \ref{fig:activations} as the black line. The presentation in the figure visualises the fact that large negative numbers maps to 0, and large positives numbers maps to 1.   
+            \begin{flalign}\label{eq:AF_Logistic_1}
+            \sigma \left( \boldsymbol{z} \right) &= \frac{1}{1 + e^{\boldsymbold{z}}}
+            \end{flalign}
+            An important quality of the Logistic function is that when we have solved to derivative analitically, it is very fast to compute. We have obtained the derivative below in equation \eqref{eq:AF_Logistic_2}.
+            \begin{flalign}
+            \frac{\partial \sigma \left( \boldsymbold{z} \right)}{\partial \boldsymbold{z}} & = \frac{e (-\mathbf{z})}{(1+e ^{(-\mathbf{z}))^{2}}} \nonumber\\
+            \frac{\partial}{\partial \mathbf{z}} \sigma(\mathbf{z}) &=\frac{1}{1+e^{ (-\mathbf{z})}}  \frac{e^{ (-\mathbf{z})}}{1+e^{ (-\mathbf{z})}} \nonumber\\
+            &=\sigma(\mathbf{z})  \frac{e^{ (-\mathbf{z})}}{1+e ^{(-\mathbf{z})}} \nonumber\\
+            &=\sigma(\mathbf{z})  \frac{1+e ^{(-\mathbf{z})}-1}{1+e ^{(-\mathbf{z})}}\nonumber \\
+            &=\sigma(\mathbf{z}) \left(1-\frac{1}{1+e^{(-\mathbf{z})}}\right) \nonumber\\
+            &=\sigma(\mathbf{z}) (1-\sigma(\mathbf{z})) \label{eq:AF_Logistic_2}
+            \end{flalign}
+            The Logistic function have been very widely used in the past however, it has two major drawbacks. 
             
-            \subsubsection{$L^2$ Regularisation}
+            The first being the vanishing gradient problem and is explained by \cite{Zhang2015}. The problem is that since the Backpropagation algorithm depends on the value of the derivative when updating the weights of the network this combined with the logistic function saturating at large values results in a slow learning process and in some cases prevents it. 
             
-        
-\section{Local Interpretable Model-agnostic Explanations (LIME)}
+            The second drawback is that the output is not zero-centered, which permits neurons in later layers to either take all positive or negative inputs. This can result in a sign switching behaviour between the layers in the network, slowing down the learning process \cite{Zhang2015}.
+            \subsubsection{Tanh}
+            The hyberbolic tangent (tanh) activation function maps values to being in the interval $[-1, 1]$. Tanh also suffers, as the Logistic function, from the vanishing descent problem, however the mean is zero-centered, which is positive since negative (positive) inputs will be mapped in the negative (positive) direction \cite{godina_2017}. As seen from the definition in equation \eqref{eq:AF_Tahn}, tanh uses the exponential function, which is expensive to compute compared to for example the ReLU activation function.
+            \begin{flalign}\label{eq:AF_Tahn}
+            \sigma \left( \mathbf{z} \right) &= \frac{1 - e ^{-2 \mathbf{z}}}{1 + e ^{-2 \mathbf{z}}}
+            \end{flalign}
+            \subsubsection{ReLU}
+            The idea of the Rectified Linear Unit (ReLU) is a very simple yet the most used activation function at the time, it is mapping input values to $[0,\infty]$, see definition in equation \eqref{eq:AF_ReLU}. The simplicity of the ReLU activation function makes it very efficient to compute, when comparing to the Logistic- and Tanh activation functions. Even though the function is very simple it has some nice properties and actually only few drawbacks. 
+            The ReLU is 0 for negative values, but does not saturate for positive values  \cite{Zhang2015}, which ensures a flow of gradient as long as the input is positive, this have been found to increase the speed to convergence when training the network. 
+            \begin{flalign}\label{eq:AF_ReLU}
+            \sigma \left( \mathbf{z} \right) &= \operatorname{max} \left(0, \mathbf{z} \right)
+            \end{flalign}
+            
+            \section{Back-propagation}\label{sec:NN_BP}
+            As mentioned earlier in subsection \ref{subsec:Perceptron}, the learning algorithm developed by \cite{Rosenblatt1958:} is unable to learn in the case where the Perceptron has multiple layers, such as the network presented in Figure \ref{fig:NN1}. The problem is that in order to update the weights and biases equation \eqref{eq:Perceptron_3}, requires knowledge of the true output vector, which in the MLP case only is available in the output layer.
+            
+            \cite{Rumelheart_1986} noted  that the calculation performed by the activation function is a nonlinear, and differentiable function, which made it possible to compute the partial derivatives of the error with respect to the weights of the ANN. Meaning we can use calculus to calculate the magnitude by which each neuron in the output layer contributes to the error and then divide the contribution to the error of each neuron in the preceding layers. In this way the error is >>propagated backwards<< through the ANN, adjusting the weights accordingly to the contribution to the error at the output layer.  
+            
+            The algorithm is then optimizing the parameters iteratively through a two-step procedure which are made of a forward- and a backward pass. 
+            Considering Figure \ref{fig:NN1}, the forward pass refers to the computation procedure through all the networks neurons from the input layer to the output layer, which produce the prediction $\hat{y}$. 
+            The backward pass is where the parameter (weight and bias) is recalculated and thus updated. This update of the parameters is based on the error $(E=\hat{y} - y)$ produced by the network in the forward pass. 
+            
+The purpose of the algorithm is to update all the weights and biases through the ANN, this is accomplished by computing the partial derivative of a loss function with respect to each weight and bias in the ANN. The choice of loss function depends on the problem being adressed, in a classification problem we will typically apply the cross-entropy loss (see equation \eqref{eq:cross-entropy}), independent of the choice of loss function the same principles applies, namely that the updating algorithm seek to adjust the parameters in order to minimize an error \cite{ESL}.
+            
+More formally we update the weights according to equation \eqref{eq:weight_update_BP}
+    
+            \begin{flalign}
+            \mathbf{W}_{new} & = \mathbf{W}_{old} - \eta \frac{\partial E}{\partial \mathbf{W}_{old}} \label{eq:weight_update_BP}
+            \end{flalign}
+here $\eta$ is the so called learning rate which indicates the step size of the gradient descent steps.
+
+\subsubsection{Cross-Entropy loss function}
+The Cross-Entropy loss function also known as the log-loss, is as mentioned above usually applied in classification tasks. The loss is computed as in equation \eqref{eq:cross-entropy}
+
+\begin{flalign}
+\mathcal{L}\left(y, \hat{y} \right) &= - \sum_i y_i \log \hat{y}_i \label{eq:cross-entropy}
+\end{flalign}
+
+where $y$ is the true value of the output and $\hat{y}_i$ is the model estimate of the output. The cross-entropy loss function introduces an exponentially increasing error as the difference of the output estimate and true output increases and vice versa.  
+
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwResult{Write here the result }
+
+ initialization\;
+ \For{d in data}{
+ \textbf{Forward Pass:}
+  \begin{itemize}
+      \item Starting from the input layer, use eq.~\ref{update} to do
+      a forward pass trough the network, computing the activities of the
+      neurons at each layer.
+  \end{itemize}
+        \textbf{Backward Pass}\;
+        \For{$\ell$ in $\mathcal{L}$}{
+        \begin{itemize}
+            \item Compute the derivatives of the error function with respect
+        to the inputs of the upper layer neurons\;
+            \item Compute the derivatives of the error function with respect
+        to the weights between the outer layer and the layer below\;
+            \item Compute the derivatives of the error function with respect
+        to the activities of the layer below\;
+        \end{itemize}
+        } 
+        Update weights\;
+ }
+ \caption{Back-propagation}
+\end{algorithm}
+
 
 \section{Performance measures}
+Now that we introduced the Artificial Neural Network, we will consider the metrics often used in order to determine how well the network is performing. The metrics we will consider in this section, all originate from the \textit{Confusion matrix} presented in Table \ref{tab:Confusion_matrix} below.
 
+\begin{table}[H]
+    \centering
+        \caption{Confusion Matrix}
+    \label{tab:Confusion_matrix}
+\begin{tabular}{@{}cc cc@{}}
+\multicolumn{1}{c}{} &\multicolumn{1}{c}{} &\multicolumn{2}{c}{\textbf{Predicted}} \\ 
+\cmidrule(lr){3-4}
+\multicolumn{1}{c}{} & 
+\multicolumn{1}{c}{} & 
+\multicolumn{1}{c}{Positive} & 
+\multicolumn{1}{c}{Negative} \\ 
+\vspace{0.1cm}
+\cline{2-4}
+\multirow[c]{2}{*}{\rotatebox[origin=tr]{90}{\textbf{Actual}}}
+& Positive  & True Positive (TP) & False Positive (FP)  \\[1.5ex]
+& Negative  & False Negative (FN)  & True Negative (TN) \\ 
+\cline{2-4}
+\end{tabular}
+\end{table}
+
+In order to assess the performance of our classifier we obtain the estimates and then compare these to the true outcome, and then sort our observations according to the four classes of the confusion matrix. Having done this allows us to use these numbers to compute several performance metrics such as the Specificity and Sensitivity, they are computed as presented in equation  \eqref{eq:sensitivity} and \eqref{eq:specificity}. Sensitivity can be interpreted as the probability of predicting a positive case (positive \= costumer defaulting)  given that the costumer actually did default. The Specificity on the other hand can be interpreted as the probability of predicting a negative case (negative \= costumer not defaulting) given that the costumer actually did not default \cite{ISL}. In our classification task it is more costly if the model is classifying costumers as not defaulting and the costumer actually defaults, because this will impose a loss  but if the model is classifying a costumer as defaulting and the costumer actually did not default then we do not suffer a loss, thus we are more concerned with the sensitivity than the specificity.
+
+\begin{flalign}
+%Precision & = \frac{TN}{TN + FP} \\
+Sensiticity & =  \frac{TN}{TN + FN} \label{eq:sensitivity}\\
+Specificity & = \frac{TP}{TP + FP} \label{eq:specificity}
+%NPV & = \frac{TP}{TP + FN} \\ 
+%Accuracy & = \frac{TP + TN}{TP + TN + FP + FN}
+\end{flalign}
+%\subsection{Area Under the Curve}
+\section{Local Interpretable Model-agnostic Explanations (LIME)}
+
+Artificial Neural Networks have been and are often strongly critized due to their complexity. If one were told to interpret an ANN, the natural thing would be to look at the parameters (weights and bias), if the ANN only had a input layer and output layer we would have as many parameters as we have explanatory variables plus a bias term, and the parameters are connected to a specific variable, and thus can be interpreted as an effect of that specific variable on the target variable. However as we add nodes and hidden layers to our ANN, the number of parameters in the network increases rapidly. An example where we have 30 explanatory variables 3 hidden layers where each layer has 128 nodes then we end up with 
+
+\begin{flalign}
+P & = \underbrace{30 \times 128}_{input} + \overbrace{128 \times 128 + 128 \times 128}^{hidden} + \underbrace{128 \times 1}_{output} + \overbrace{128 + 128 + 128 + 1}^{biasses} = 31.721 \nonumber
+\end{flalign}
+
+thus the interpretability task becomes quite infeasible. If we insist on utilizing ANN for deciding whether or not to grant a loan to a costumer, then according to regulation we need the ability to tell the costumer exactly what caused the result, for instance if it was the costumers income to debt ratio that were too high. 
+\cite{lime_2016} propose a simple method for opening these >>black-box<< models, by approximating a local interpretable model around each observation...
+
+If we want to use an ANN for making decisions on which costumers we want to  costumers we are required by regulation to being able to tell exactly why we are rejecting a costumer. That is why we will explain a new technique proposed in \cite{lime_2016} which is a simple approach of unboxing the black-box classifers in machine learning.

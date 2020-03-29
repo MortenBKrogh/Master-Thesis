@@ -1,4 +1,63 @@
 \chapter{Introduction}\label{ch:1}
+The foundation of the banking industry is both to protect the costumers deposits and provide costumers with loans when they need it. Even though banks have many other services, providing loans is still the core business. However, the bank does not want to provide a loan to a costumer who is unable to repay the principal of the loan, thus the bank does some research on the loan applicant and then decides whether to grant the loan or reject the costumers loan application. 
+The banks usually have employed loan officers to make the credit decision on behalf of the bank. The loan officers follow some stick rules (the banks credit policy) which guides them through the credit evaluation and thus loan worthiness of the applicant. It is generally acknowledged that humans capability to evaluate the loan applicants are deficient \cite{Glorfeld_1996}, thus approving applicants who are unable to repay the principle and thus taking a loss. Being aware of this problem banks need to monitor the behaviour of their costumers repayment behaviour in order to estimate how many the bank expects to default (not repaying).   
+
+This problem of predicting costumer defaults can be seen as a classification problem, where we wish to put the costumers into two classes >>Default<< and >>Non-default<<. The credit evaluation process should in theory have discarded the majority of the defaulting costumers and thus leaving a small fraction defaulting after the credit approval, this translates into a quite high imbalance among the two classes which is also what we see in the data discussed in Chapter \ref{ch:2}.
+
+A popular method addressing this problem have been to utilize the Logistic Regression Algorithm this might be due to the relative simplicity and the possibility to interpret the outcome as a probability of the costumer defaulting. Logistic Regression have showed quite good results in this task \textbf{(find en kilde)}. However, the relationship among the input variables might be non-linear, and thus it might be better to consider a model that is able to model these relationships. 
+
+The purpose of this thesis is to implement both the Logistic Regression and an Artificial Neural Network (ANN) for addressing the classification task of predicting which costumers are going to default or repay their loans. The models will be build upon the freely available Freddie Mac Single-Family Loan-Level (FMSFMLL) dataset which contains data on mortgages originated from 2016 to 2018. We evaluate the performance of the two models and considers a relatively new method for explaining the classifiers. This is the \textit{Local Interpretable Model-agnostic Explanations} (LIME) algorithm proposed by \cite{lime_2016}. Utilizing the LIME algorithm on highly complex models as the ANN enables banks to comply with current regulatory guidelines proposed by the European Banking Authority. 
+
+In a recent publication \cite{EBA_BD_AA_2020} addresses the considerations when employing advanced analytical methods such as the ANN upon big data they specifically addresses the element concerning trust in the models. This includes the explainability- and interpretability issues with respect to these models and also the consumer protection right which states consumers are entitled to make a complain and receive a response in plain language that clearly can be understood \footnote{\url{https://eba.europa.eu/sites/default/documents/files/documents/10180/732334/312b02a6-3346-4dff-a3c4-41c987484e75/JC\%202014\%2043\%20-\%20Joint\%20Committee\%20-\%20Final\%20report\%20complaints-handling\%20guidelines.pdf}}. If a bank or financial institution is unable to provide an explanation to a costumer plain text, of why his or hers default status suddenly has changed, then they do not comply with regulation. This is where the LIME algorithm enters the picture. 
+
+The question we seek to answer in this thesis is whether or not an Artificial Neural Network outperforms the Logistic Regression in a highly imbalanced classification task, and how the ANN can be implemented in such a way it becomes compliant with current regulation in the field. 
+
+%\section{Motivation} Måske flyt det her op i starten og flet sammen med det der står
+The worst financial event since the Great Depression (1929-1933) is the Great Financial Crisis (GFC) (2007-2009). There has been conducted a vast amount of research in the field trying to locate the cause of the crisis. Evidence suggests that the GFC was a result of e.g. poorly conduction of risk management \cite{risk_management1, risk_management2}. Goldman Sachs have a reputation of being great at risk management and thus they actually did adjust their position in Mortgage Backed Securities a year before the outburst of the GFC in 2006, this action is one explanation why they did not suffer losses in the same scale as Lehman Brothers and Bear Sterns e.g. \cite{risk_management_lessons}.
+
+Since the Great Financial Crisis initiatives by regulatory authorities have increased e.g. European Legislation \cite{CRR} impose the European Banking Authority to issue guidelines for the financial institutions to follow. Banks have in general been seen simultaneously to invest heavily in risk-management \cite{risk_management_five_years_on_ey}. Several assessments in the aftermath of the GFC have been conducted on banks risk-management, one assessment conducted by the dutch central bank concluded in 2015, that there still is room for improvements in banks mortgage portfolio credit risk management and they expect financial institutions to >>... have an adequate early warning signals framework in place to identify, monitor and deal with high-risk loans in good time. << \cite{DNB_2015}. The importance of conduction of sound risk-management becomes quite clear when considering the size of the mortgage market \textbf{(Måske en reference til størrelsen på consumer credit i europa?)}, and thus even a small increase in accuracy in identifying risky loans, could prevent large monetary losses for the financial institutions. 
+% https://tradingeconomics.com/euro-area/consumer-credit 
+
+\section{Literature Review}
+There is a staggering amount of research in the field of credit risk. Though most of the research does not touch the Machine Learning approach for predicting mortgage defaults, the research field is growing quite rapidly. In this section we will present some of the classic credit risk papers, trying to identify key predictors of mortgage defaults and some more recent papers investigating the usage of machine learning in the field.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{comment}
+\midrule
+
+Monitoring the costumers behaviour has traditionally been a task for the costumer advisor in the respective branch. However, since a vast amount of data are recorded about the costumer and humans inability to asses and discover useful relationships and paterns in data generally, banks have employed mathematical models for the monitoring task also. Traditionally the Logistic Regression algorithm have been the preffered algorithm of choice due to it's relative simplicity and the ease of interpretation \textbf{(en kilde herpå)}. The logistic regression lies in the sphere of Machine Learning considering Figure \ref{fig:AI_overview}. 
+
+In recent years the field of Artificial Intelligence (AI) has yet again become more and more popular and the research in the field has exploded. One reason might be the widespread adoption of computers together with emergence of cloud computing making lots and lots of cheap computing power available to the masses and easy to use software packages for utilizing popular AI algorithms such as keras, tensorflow etc. The published results of for example Artificial Neural Networks (ANN) looks promising, and thus might be 
+
+
+
+\cite{EBA_BD_AA_2020}
+
+
+
+
+
+
+
 The key function of the traditionally bank, is to keep the costumers money safe as well as provide costumers with loans. Using the word >>safe<< indicates only to provide loans to the costumers, whom are able to pay back the loan. Thus a bank must be interested in identifying costumers who have this ability, discard those who does not have it. This can be seen as a classification problem, where it is desired to classify the costumers into classes of >>Defaults<< that is those who does not pay back their loans and >>Non-defaults<<, those who does pay back their loans. The approach utilized by banks to solve this problem has developed over time, first the bank develops some credit policy, which the borrower has to comply with in order to obtain a loan. However as computers became more and more available,  
 
 
@@ -53,3 +112,10 @@ AI is a very broad terms and includes for example the sub >>Machine Learning<< i
 \subsection{Thesis Outline}
 In chapter \ref{ch:1} the general introduction and motivation of the binary classification problem has been stated. In Chapter \ref{ch:2} the data utilized will be introduced and the prepossessing steps of the data processing will be described in detail. Chapter \ref{ch:3} introduces the methodology of the models, that is the Neural Network and the industry standard Logistic Regression. Chapter \ref{ch:4} will describe the model specification of the Neural Network, this includes fine-tuning of the Network, and also the Logistic regression model. In Chapter \ref{ch:5} the results of the models will be presented and a comparison will be given. I will also address the interpretability problem of the >>black-box<< model and how it is possible to actually interpret the explanatory factors of such models. Lastly in chapter \ref{ch:6} concluding remarks will be given. 
 I hope you enjoy reading this thesis. 
+
+
+\begin{itemize}
+    \item we build a both a logistic model and a neural network, first of all to check the performance of the network in this type of classification is the results non negligible and in that case how can we apply neural networks in the business of banking, with all the regulation..  
+    \item Something with EBA regulation, interpretation of results (LIME) as a possible soulution. 
+\end{itemize}
+\end{comment}

@@ -29,17 +29,36 @@ p{1cm}
 \endfoot
 \bottomrule
 \endlastfoot
-\tiny 1 & \tiny fico/CREDIT SCORE - A number, prepared by third parties, summarizing the borrower’s creditworthiness, which may be indicative of the likelihood that the borrower will timely repay future obligations. Generally, the credit score disclosed is the score known at the time of acquisition and is the score used to originate the mortgage. & \tiny \begin{itemize} \item 301-850 \item 9999 = Not Availible, if credit score is < 301 or >850.
-\end{itemize} & \tiny Numeric & \tiny 4 \\
-\tiny 2 & \tiny dt\_first\_pi & \tiny 2 & \tiny  3 & \tiny 4 \\
-\tiny 3 & \tiny flag\_fthb & \tiny 2 & \tiny  3 & \tiny 4 \\ 
-\tiny 4 & \tiny dt\_matr & \tiny 2 & \tiny  3 & \tiny 4\\ 
-\tiny 5 & \tiny cd\_msa & \tiny 2 & \tiny  3  &\tiny  4\\
-\tiny 6 & \tiny mi\_pct & \tiny 2 & \tiny  3 & \tiny 4 \\ 
-\tiny 7 & \tiny cnt\_units & \tiny 2 & \tiny  3& 4\tiny  \\ 
-\tiny 8 & \tiny occpy\_sts & \tiny 2 & \tiny  3 & \tiny 4 \\
-\tiny 9 & \tiny cltv & \tiny 2 & \tiny  3  &\tiny  4\\ 
-\tiny 10 &\tiny  dti & \tiny 2 & \tiny  3 & \tiny 4\\ 
+\tiny 1 & \tiny \textbf{fico/CREDIT SCORE} - A number, prepared by third parties, summarizing the borrower’s creditworthiness, which may be indicative of the likelihood that the borrower will timely repay future obligations. Generally, the credit score disclosed is the score known at the time of acquisition and is the score used to originate the mortgage. & \tiny \cdot301-850 \cdot 9999 = Not Availible, if credit score is < 301 or >850. & \tiny Numeric & \tiny 4 \\
+\tiny 2 & \tiny \textbf{dt\_first\_pi / FIRST PAYMENT DATE} - The date of the first scheduled mortgage  payment due under the terms of the mortgage note. & \tiny  \tabitem YYYYMM   & \tiny  DATE & \tiny 6 \\
+\tiny 3 & \tiny \textbf{flag\_fthb FIRST TIME HOMEBUYER FLAG} - Indicates whether the Borrower, or one of a group of Borrowers, is an individual who (1) is purchasing the mortgaged property, (2) will reside in the mortgaged property as a primary residence and (3) had no ownership interest (sole or joint) in a residential property during the three-year period preceding the date of the purchase of the mortgaged property. With certain limited exceptions, a displaced homemaker or single parent may also be considered a First-Time Homebuyer if the individual had no ownership interest in a residential property during the preceding three-year period other than an ownership interest in the marital residence with a spouse.
+
+
+Investment Properties, Second Homes and Refinance transactions are not eligible to be considered First-Time Homebuyer transactions. Therefore First Time Homebuyer does not apply and will be disclosed as “Not Applicable”, which will be indicated by a blank space. & \tiny \begin{itemize}
+    \item[\cdot] Y = Yes
+    \item[\cdot] N=No
+    \item[\cdot] 9 = Not Available or Not Applicable
+\end{itemize} & \tiny  Alpha & \tiny 1 \\ 
+\tiny 4 & \tiny \textbf{dt\_matr/MATURITY DATE} - The month in which the final monthly payment on the mortgage is scheduled to be made as stated on the original mortgage note. & \tiny \begin{itemize}
+    \item YYYYMM
+\end{itemize}  & \tiny  Date & \tiny 6\\ 
+\tiny 5 & \tiny \textbf{cd\_msa/METROPOLITAN STATISTICAL AREA (MSA) OR METROPOLITAN DIVISION} - This disclosure will be based on the designation of the Metropolitan Statistical Area or Metropolitan Division based on 2010 census (for Mar 2013 and May 2013 releases) and 2013 census (for Aug 2013 and Dec 2013 releases) data. Metropolitan Statistical Areas (MSAs) are defined by the United States Office of Management and Budget (OMB) and have at least one urbanized area with a population of 50,000 or more inhabitants. OMB refers to an MSA containing a single core with a population of 2.5 million or more, which may be comprised of groupings of counties, as a Metropolitan Division.
+
+
+If an MSA applies to a mortgaged property, the applicable five-digit value is disclosed; however, if the mortgaged property also falls within a Metropolitan Division classification, the applicable five-digit value for the Metropolitan Division takes precedence and is disclosed instead.
+Changes and/or updates in designations of MSAs or Metropolitan Division will not be reflected in the Single Family Historical Dataset. & \tiny 2 & \tiny  3  &\tiny  4\\
+\tiny 6 & \tiny \textbf{ mi\_pct/MORTGAGE INSURANCE PERCENTAGE (MI \%)} - The percentage of loss coverage on the loan, at the time of Freddie Mac’s purchase of the mortgage loan that a mortgage insurer is providing to cover losses incurred as a result of a default on the loan. Only primary mortgage insurance that is purchased by the Borrower, lender or Freddie Mac is disclosed. Mortgage insurance that constitutes “credit enhancement” that is not required by Freddie Mac’s Charter is not disclosed.
+
+Amounts of mortgage insurance reported by Sellers that are less than 1\% or greater than 55\% will be disclosed as “Not Available,” which will be indicated 999. No MI will be indicated by three zeros. & \tiny 2 & \tiny  3 & \tiny 4 \\ 
+\tiny 7 & \tiny \textbf{cnt\_units/NUMBER OF UNITS} - Denotes whether the mortgage is a one-, two-, three-, or four-unit property. & \tiny 2 & \tiny  3& 4\tiny  \\ 
+\tiny 8 & \tiny \textbf{occpy\_sts/OCCUPANCY STATUS} - Denotes whether the mortgage type is  owner occupied, second home, or investment property. & \tiny 2 & \tiny  3 & \tiny 4 \\
+\tiny 9 & \tiny \textbf{cltv/ORIGINAL COMBINED LOAN-TO-VALUE (CLTV)} – In the case of a purchase mortgage loan, the ratio is obtained by dividing the original mortgage loan amount on the note date plus any secondary mortgage loan amount disclosed by the Seller by the lesser of the mortgaged property’s appraised value on the note date or its purchase price. In the case of a refinance mortgage loan, the ratio is obtained by dividing the original mortgage loan amount on the note date plus any secondary mortgage loan amount disclosed by the Seller by the mortgaged property’s appraised value on the note date. If the secondary financing amount disclosed by the Seller includes a home equity line of credit, then the CLTV calculation reflects the disbursed amount at closing of the first lien mortgage loan, not the maximum loan amount available under the home equity line of credit. In the case of a seasoned mortgage loan, if the Seller cannot warrant that the value of the mortgaged property has not declined since the note date, Freddie Mac requires that the Seller must provide a new appraisal value, which is used in the CLTV calculation. In certain cases, where the Seller delivered a loan to Freddie Mac with a special code indicating additional secondary mortgage loan amounts, those amounts may have been included in the CLTV calculation.
+
+
+If the LTV is < 80 or > 200 or Not Available, set the CLTV to ‘Not Available.’ If the CLTV is < LTV, set the CLTV to ‘Not Available.’
+This disclosure is subject to the widely varying standards originators use to verify Borrowers’ secondary mortgage loan amounts and will not be updated. & \tiny 2 & \tiny  3  &\tiny  4\\ 
+\tiny 10 &\tiny  dti \multirow{2}{*}{\begin{tabular}{@{}>{\textbullet\hspace{\labelsep}}l}
+   An itemized list begins here\\ A second item \\ hej hej \end{tabular}} & \tiny 2 & \tiny  3 & \tiny 4\\ 
 \tiny 11 &\tiny  orig\_upb & \tiny 2 & \tiny  3  &\tiny  4\\
 \tiny 12 &\tiny  ltv & \tiny 2 & \tiny  3 & \tiny 4 \\ 
 \tiny 13 &\tiny  int\_rt & \tiny 2 & \tiny  3 & \tiny 4\\ 
