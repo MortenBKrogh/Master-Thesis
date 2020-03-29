@@ -13,78 +13,143 @@ rm(list=ls())
 source('code/functions.R')
 
 # Download  sample files and place them in the data folder
-# Data(2012, 2018, sample=FALSE)
+# Data(1999, 2018, sample=FALSE)
 
 # Then we need to do some preprocessing of the original data aswell as calculating performance features
 
-# var_names <- prepare_FMdata(64, 79, sample=FALSE)
+#var_names <- prepare_FMdata(1999, 2018, sample=TRUE)
+# dput prints the vector as vector input.
+# dput(var_names)
+
+# Load the variables we need in the analysis.
+# all_var_names holds all the names of the variables in the csv file
+all_var_names <- c("id_loan", "dt_first_pi", "fico", "flag_fthb", "dt_matr", "cd_msa", 
+                    "mi_pct", "cnt_units", "occpy_sts", "cltv", "dti", "orig_upb", 
+                    "ltv", "int_rt", "channel", "ppmt_pnlty", "prod_type", "st", 
+                    "prop_type", "zipcode", "loan_purpose", "orig_loan_term", "cnt_borr", 
+                    "seller_name", "servicer_name", "flag_sc", "repch_flag", "cd_zero_bal", 
+                    "dt_zero_bal", "dt_lst_pi", "lst_upb", "loan_age", "mths_remng", 
+                    "lst_int_rt", "#current_l12", "#30_dl_l12", "#60_dl_l12", "#90_dl_l12", 
+                    "default", "prepaid")
+
+# however we only need the variables below
+# used_var_names <- c('default','dt_first_pi', 'fico', 'flag_fthb', 'mi_pct', 'cnt_units',
+#                     'occpy_sts', 'cltv', 'dti', 'orig_upb', 'ltv', 
+#                     'int_rt', 'channel', 'st', 'prop_type', 'loan_purpose',
+#                     'orig_loan_term', 'cnt_borr', 'current_int_rt', 'loan_age', 'mths_remng', 
+#                     'cd_zero_bal', '#30_dl', '#60_dl', '#current_l12', '#30_dl_l12')
+# 
+# # so we will only load these variables to save space
+# used_var_index <- match(used_var_names, all_var_names)
 
 
-# Load 'raw' data
-# Commented var_names are for the Final_1:79.txt files while the uncommented are for the Final_v2_1:79.txt files.
+FM_data_files <- list.files(path=paste0(getwd(), "/data"), pattern="^Final_Sample_.*\\.txt", full.names=TRUE)
+FM_data <- ldply(FM_data_files, data.table::fread, sep = "|", header = FALSE, col.names = all_var_names, stringsAsFactors = TRUE) #, select = used_var_index) 
 
-# var_names <- c("id_loan","dt_first_pi","fico","flag_fthb","dt_matr","cd_msa","mi_pct","cnt_units",
-#                "occpy_sts","cltv","dti","orig_upb","ltv","int_rt","channel","ppmt_pnlty",
-#                "prod_type","st","prop_type","zipcode","loan_purpose","orig_loan_term","cnt_borr","seller_name",
-#                "servicer_name","flag_sc","default", "dt_default", "dt_delq", "delq_age", "default_age", "delq_remng",
-#                "default_remng","current","delq_sts","current_upb","current_int_rt","loan_age",
-#                "mths_remng","cd_zero_bal","#current","#30_dl","#60_dl","#90+_dl","#current_l12","#30_dl_l12",
-#                "#60_dl_l12","#90+_dl_l12")
+rm(all_var_names, used_var_names, used_var_index, Data, prepare_FMdata, new.packages, list.of.packages, FM_data_files)
 
-var_names <- c("id_loan", "dt_first_pi", "fico", "flag_fthb", "dt_matr", "cd_msa", 
-               "mi_pct", "cnt_units", "occpy_sts", "cltv", "dti", "orig_upb", 
-               "ltv", "int_rt", "channel", "ppmt_pnlty", "prod_type", "st", 
-               "prop_type", "zipcode", "loan_purpose", "orig_loan_term", "cnt_borr", 
-               "seller_name", "servicer_name", "flag_sc", "svcg_cycle", "current_upb", 
-               "delq_sts", "loan_age", "mths_remng", "repch_flag", "flag_mod", 
-               "cd_zero_bal", "dt_zero_bal", "current_int_rt", "non_int_brng_upb", 
-               "dt_lst_pi", "mi_recoveries", "net_sale_proceeds", "non_mi_recoveries", 
-               "expenses", "legal_costs", "maint_pres_costs", "taxes_ins_costs", 
-               "misc_costs", "actual_loss", "modcost", "stepmod_ind", "dpm_ind", 
-               "eltv", "temp", "temp_2", "temp_3", "temp_4", "prev", "survived", 
-               "#30_dl", "#60_dl", "#90+_dl", "first_dt_delq", "first_delq_age", 
-               "first_delq_mths_remng", "first_eltv", "last_eltv", "surv_binary", 
-               "#surv", "recovered", "rt_change", "default_v0", "dt_default_v0", 
-               "default_v1", "dt_default_v1", "#current_l12", "#30_dl_l12", 
-               "#60_dl_l12")
 
-FM_data_files <- list.files(path=paste0(getwd(), "/data"), pattern="^Final_v2.*\\.txt", full.names=TRUE)
-FM_data <- ldply(FM_data_files, data.table::fread, sep = "|", header = FALSE, col.names = var_names, stringsAsFactors = TRUE) 
+#check how many missing values in the selected variables are present
+Missing <- FM_data %>% 
+  select(everything()) %>%  # replace to your needs
+  summarise_all(funs(sum(is.na(.))))
 
-#FM_data$default <- as.numeric(FM_data$default)
-#FM_data$delq_sts <- as.character(FM_data$delq_sts)
+# remove rows with missing default, fico and zero balance values,
+# since the first two are required for institutions, and the last
+# because we only look at dead loans. 
+FM_data %<>% drop_na(default, fico, orig_upb, cd_zero_bal, zipcode) %>% select(-cd_zero_bal, -prepaid)
 
-# select the data for the model (OBS: delq_sts and current causes problems.. hence they are not included.)
-data <- subset(FM_data, !is.na(FM_data$default)) %>%
-  #select(-excluded_vars)
-  select(default, fico, flag_fthb, mi_pct, cnt_units,
-         occpy_sts, cltv, dti, orig_upb, ltv, int_rt,
-         channel, st, prop_type, loan_purpose, delq_sts,
-         orig_loan_term, cnt_borr,
-         seller_name, servicer_name, 
-         current_int_rt, loan_age,
-         mths_remng, cd_zero_bal, `#current`, `#30_dl`,
-         `#60_dl`, `#current_l12`, `#30_dl_l12`) %>% drop_na()
+# Now we will apply
+# some rules for handling missing values, described in the data section.
+#library(magrittr)
+FM_data %<>% mutate(year_first_pi = as.factor(substr(as.character(dt_first_pi), 1, 4)),
+                    mnth_first_pi = as.factor(substr(as.character(dt_first_pi), 6, 7)),
+                    year_zero_bal = as.factor(substr(as.character(dt_zero_bal), 1, 4)),
+                    mnth_zero_bal = as.factor(substr(as.character(dt_zero_bal), 6, 7)),
+                    flag_fthb    = fct_explicit_na(flag_fthb, na_level = 'U'),
+                    occpy_sts    = fct_explicit_na(occpy_sts, na_level = 'U'),
+                    st           = fct_explicit_na(st,        na_level = 'U'),
+                    prop_type    = fct_explicit_na(prop_type, na_level = 'U'),
+                    loan_purpose = fct_explicit_na(loan_purpose, na_level = 'U'),
+                    cltv         = replace_na(cltv, stats::median(cltv, na.rm = T)),
+                    dti          = replace_na(dti,  stats::median(dti, na.rm = T)),
+                    ltv          = replace_na(ltv, stats::median(dti, na.rm = T)),
+                    cnt_borr     = replace_na(cnt_borr, 1)
+                    ) %>%
+              mutate(st          = as.character(st)) %>%
+              filter(!st %in% c('VI','GU')) %>%
+              mutate(st          = as.factor(st))
 
-# #prop_type, seller_name, servicer_name, current_int_rt, cd_zero_bal, #60_dl 
-# data_model <- subset(FM_data, !is.na(FM_data$default)) %>%
-#   #select(-excluded_vars)
-#   select(default, fico, flag_fthb, mi_pct, cnt_units,
-#          occpy_sts, cltv, dti, orig_upb, ltv, int_rt,
-#          channel, st, loan_purpose, 
-#          orig_loan_term, cnt_borr,
-#          loan_age,
-#          mths_remng, `#current`, `#30_dl`,
-#          `#current_l12`, `#30_dl_l12`) %>% drop_na()      
+# make the target variable numeric
+# FM_data %<>% mutate(default = as.factor(default))
+
+# FM_data %<>% select(-id_loan, - dt_first_pi, - dt_matr, -prod_type, -ppmt_pnlty, -flag_sc,
+#                    -repch_flag, -cd_msa, -dt_lst_pi)
+
+FM_data_v1 <- FM_data %>% select(
+                                 #"id_loan", 
+                                 #"dt_first_pi", 
+                                 "fico", 
+                                 "flag_fthb", 
+                                 # "dt_matr", 
+                                 # "cd_msa", 
+                                 "mi_pct", 
+                                 "cnt_units", 
+                                 "occpy_sts", 
+                                 # "cltv", this is the same as ltv in most cases
+                                 "dti", 
+                                 "orig_upb", 
+                                 "ltv", 
+                                 "int_rt", 
+                                 "channel", 
+                                 "ppmt_pnlty", 
+                                 # "prod_type", 
+                                 "st", 
+                                 "prop_type", 
+                                 "zipcode", 
+                                 "loan_purpose", 
+                                 # "orig_loan_term", 
+                                 "cnt_borr", 
+                                 # "seller_name", 
+                                 # "servicer_name", 
+                                 # "flag_sc", 
+                                 # "repch_flag", 
+                                 # "cd_zero_bal", removed earlier
+                                 # "dt_zero_bal", 
+                                 # "dt_lst_pi", 
+                                 "lst_upb", 
+                                 "loan_age",
+                                 "mths_remng", 
+                                 # "lst_int_rt", 
+                                 "#current_l12", 
+                                 "#30_dl_l12", "#60_dl_l12", "#90_dl_l12",
+                                 'year_first_pi', 'mnth_first_pi', 
+                                 'year_zero_bal', 'mnth_zero_bal',
+                                 "default" 
+                                 #"prepaid" 
+                                 )
+
 
 # obtain train and test dataset
 set.seed (20200206) # Seed: The day I am handing in my thesis
-( train_test_split <- initial_split (data_model, prop = 0.7) )
+( train_test_split <- initial_split (FM_data_v1, prop = 0.7) )
 train <- training (train_test_split) 
 test  <- testing (train_test_split)
 
+rm(Missing, train_test_split)
+
+# check that train and test has approximately the same balance..
+table(FM_data$default) 
+table(train$default)
+table(test$default)
 
 ## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification
+FM_data %<>% mutate(default = as.numeric(default))
+balanced.test  <- DMwR::SMOTE(default ~ ., data = test, perc.under = 200, perc.over = 100) 
+table(balanced.test$default)
+
+
+
 summary(data_model$default)
 
 data_model_1 <- data_model %>%

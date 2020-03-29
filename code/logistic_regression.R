@@ -1,3 +1,42 @@
+
+logitmod <- glm(default ~ fico  + flag_fthb + mi_pct + cnt_units + occpy_sts + 
+                  cltv+ dti+ orig_upb+ ltv + int_rt +
+                  channel + st + prop_type + loan_purpose + orig_loan_term + 
+                  cnt_borr + current_int_rt + loan_age + mths_remng  + 
+                  `#30_dl` + `#60_dl` + `#current_l12` + `#30_dl_l12` , 
+                data = train,
+                family="binomial")
+
+pred <- predict(logitmod, newdata = test, type = "response")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Logistic <- keras_model_sequential() %>%
   layer_dense (units              = 1, #=> Num Of Nodes
                #kernel_initializer = "uniform", 

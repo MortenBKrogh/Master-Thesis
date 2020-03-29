@@ -8,3 +8,9 @@ if(length(new.packages)) install.packages(new.packages)
 
 # load required packages
 lapply(list.of.packages, library, character.only = TRUE)
+
+#install.packages("DBI")
+#install.packages("odbc")
+#install.packages("RSQLite")
+
+# library(RSQLite)
