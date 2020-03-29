@@ -3,7 +3,7 @@ preprocessing_steps <-
   recipe(default ~ ., data = train) %>%
   # (1) One-Hot Encoding for the Categorical Variables
   step_string2factor(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose) %>%
-  step_dummy(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose)%>%
+  step_dummy(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose) %>%
   # step_string2factor(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose, seller_name, servicer_name) %>%
   # step_dummy(flag_fthb, occpy_sts, channel, st, prop_type, loan_purpose, seller_name, servicer_name)%>%
   # (2) Normalizing Variables
@@ -17,9 +17,12 @@ x_train <- bake (preprocessing_steps, new_data = train) %>%
   select (-default)
 x_test <- bake (preprocessing_steps, new_data = test) %>% 
   select (-default)
+x_test_balanced <- bake (preprocessing_steps, new_data = balanced.test) %>% 
+  select (-default)
 
 y_train <- ifelse (pull (train, default) == TRUE, 1, 0)
 y_test  <- ifelse (pull (test, default)  == TRUE, 1, 0)
+y_test_balanced <- ifelse (pull (balanced.test, default)  == TRUE, 1, 0)
 
 # Build the Artificial Neural Network
 ANN_v1 <- keras_model_sequential() %>%
@@ -52,9 +55,9 @@ system.time (
     object           = ANN_v1,                  # => Our Model
     x                = as.matrix (x_train),     #=> Matrix
     y                = y_train,                 #=> Numeric Vector 
-    batch_size       = 115000,     #=> #OfSamples/gradient update in each epoch
-    epochs           = 15,     #=> Control Training cycles
-    validation_split = 0.30) ) #=> Include 30% data for 'Validation' Model
+    batch_size       = 500,     #=> #OfSamples/gradient update in each epoch
+    epochs           = 35,     #=> Control Training cycles
+    validation_split = 0.20) ) #=> Include 30% data for 'Validation' Model
 # Save the model
 save_model_hdf5(ANN_v1, "ANN_v1.h5")
 
@@ -89,6 +92,38 @@ performance = perform_class(y_pred, y_act ,classlabels)
 performance$accuracy
 performance
 
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+# - - - - - - - - Performance on Balanced test data - - - - - - - - # 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+# Predicted Class
+yhat_keras_class_vec <- predict_classes (object = ANN_v1,
+                                         x = as.matrix(x_test_balanced)) %>%
+  as.vector()
+# Predicted Probabilities
+yhat_keras_prob_vec <- 
+  predict_proba (object = ANN_v1, 
+                 x = as.matrix(x_test_balanced)) %>%
+  as.vector()
+
+# Format data and predictions for yardstick
+estimates_ANN_v1 <- tibble(
+  truth      = as.factor(y_test_balanced) %>% 
+    fct_recode ('TRUE' = "1", 'FALSE' = "0"),
+  estimate   = as.factor(yhat_keras_class_vec) %>% 
+    fct_recode ('TRUE' = "1", 'FALSE' = "0"),
+  class_prob = yhat_keras_prob_vec )
+
+####
+y_pred_num <- ifelse(yhat_keras_prob_vec > 0.5, 1, 0)
+y_pred <- factor(y_pred_num, levels=c(0, 1))
+y_act <- as.factor(y_test_balanced)
+
+classlabels = c(0,1)
+
+performance = perform_class(y_pred, y_act ,classlabels)
+performance$accuracy
+performance
 
 
 ####

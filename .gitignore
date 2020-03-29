@@ -4,3 +4,5 @@
 .Ruserdata
 data
 Master-Thesis.Rproj
+test_data.Rda
+train_data.Rda
