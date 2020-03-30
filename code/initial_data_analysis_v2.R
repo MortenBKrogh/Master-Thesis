@@ -267,7 +267,7 @@ ggsave(pw4, filename = "Figures/pw_4.pdf", width=8, height=6, dpi=600)
 alpha = .75
 p_cred <- data %>% filter(fico != 9999,!is.na(default)) %>% ggplot(aes(fico)) + geom_histogram(bins=100, aes(fill=default), alpha=alpha, stat = 'density', position = "identity") + labs(fill = "Default", title="Credit Score", x = NULL, y = NULL) + th+ scale_fill_manual(values = c(basem3, basem4))
 p_cltv <- data %>% filter(cltv != 999,!is.na(default)) %>% ggplot(aes(cltv)) + geom_histogram(bins=100, aes(fill=default), alpha=alpha, stat = 'density', position = "identity") + labs(fill = "Default", title="Complete Loan to Value", x = NULL, y = NULL) + th+ scale_fill_manual(values = c(basem3, basem4))
-p_nltv <- data %>% filter(ltv != 999,!is.na(default)) %>% ggplot(aes(ltv)) + geom_histogram(bins=100, aes(fill=default), alpha=alpha, stat = 'density', position = "identity") + labs(fill = "Default", title="Loan to Value", x = NULL, y = NULL) + th+ scale_fill_manual(values = c(basem3, basem4))
+p_nltv <- data %>% filter(ltv != 999,!is.na(default)) %>% ggplot(aes(ltv)) + geom_histogram(bins=100, aes(fill=default), alpha=alpha, stat = 'density', position = "identity") + labs(fill = "Default", title="Loan to Value", x = NULL, y = NULL) + th + scale_fill_manual(values = c(basem3, basem4))
 p_dtin <- data %>% filter(dti != 999,!is.na(default)) %>% ggplot(aes(dti)) + geom_histogram(bins=60, aes(fill=default), alpha=alpha, stat = 'density', position = "identity") + labs(fill = "Default", title="Debt to Income", x = NULL, y = NULL) + th+ scale_fill_manual(values = c(basem3, basem4))
 p_upba <- data %>% filter(!is.na(default), orig_upb < 500000) %>% ggplot(aes(orig_upb)) + geom_histogram(bins=100, aes(fill=default), alpha=alpha, stat = 'density', position = "identity") + labs(fill = "Default", title="Unpaid Balance", x = NULL, y = NULL) + th + theme(axis.text.x = element_text(angle = 45))+ scale_fill_manual(values = c(basem3, basem4)) + scale_x_continuous(labels=function(x) format(x, big.mark = ".", scientific = FALSE)) + scale_y_continuous(labels=function(x) format(x, big.mark = ".", scientific = FALSE))
 p_rate <- data %>% filter(!is.na(default)) %>% ggplot(aes(int_rt)) + geom_histogram(bins=40, aes(fill=default), alpha=alpha, stat = 'density', position = "identity") + labs(fill = "Default", title="Interest rate", x = NULL, y = NULL) + th+ scale_fill_manual(values = c(basem3, basem4))
@@ -332,4 +332,6 @@ p_mnths_zero_bal <- data %>% filter(as.numeric(mnth_zero_bal),!is.na(default)) %
 # save to disk
 ggsave(pw7, filename = "Figures/pw_7.pdf", width=8, height=6, dpi=600)
 
+#Clearing workspace
+rm(list=setdiff(ls(), "FM_Data"))
 

@@ -2,6 +2,18 @@
 # - - - - - - - - - - - - Logistic Regression - - - - - - - - - - - - - - #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
+# cv <- trainControl(method = "cv", number = 5)
+# library(e1071)
+# fit_glm <- caret::train(as.factor(default)   ~ .,
+#                  data      = train,
+#                  trControl = cv, 
+#                  method    = "glm", 
+#                  #metric    = "Accuracy",
+#                  #na.action=na.exclude
+#                  )
+# 
+# table(predict(fit_glm, newdata=test), test$default)
+
 # Estimate the logistic regression model using all the features we selected
 # in the main document.
 system.time ( 
@@ -23,6 +35,28 @@ y_act <- test$default
 classlabels = c(0, 1)
 (performance_LR = perform_class(y_pred, y_act, classlabels))
 
+#sspec <- function(x,b) {rbind(caret::spec(x), caret::precision(x), accuracy(x), recall(x), npv(x)) %>% mutate(model = b)}
+
+# save confusion matrix table to disk
+cat('\\begin{table}[H]
+     \\centering
+     \\caption{Confusion Matrix}
+     \\label{tab:Confusion_matrix}
+     \\begin{tabular}{@{}cc cc@{}}
+     \\multicolumn{1}{c}{} &\\multicolumn{1}{c}{} &\\multicolumn{2}{c}{\\textbf{Predicted}} \\\\
+     \\cmidrule(lr){3-4}
+     \\multicolumn{1}{c}{} & 
+     \\multicolumn{1}{c}{} & 
+     \\multicolumn{1}{c}{Default} & 
+     \\multicolumn{1}{c}{Not-default} \\\\
+     \\vspace{0.1cm}
+     \\cline{2-4}
+     \\multirow[c]{2}{*}{\\rotatebox[origin=tr]{90}{\\textbf{Actual}}}',
+    paste0('& Default  & ', format(performance_LR$confus[1], nsmall=1, big.mark="."), ' & ', format(performance_LR$confus[3], nsmall = 1, bog.mark = "."), ' \\\\[1.5ex]'),
+    paste0('& Not-default &', format(performance_LR$confus[2],nsmall=1, big.mark="."),  ' & ', format(performance_LR$confus[4], nsmall=1, big.mark="."),' \\\\'), 
+    '\\cline{2-4}
+     \\end{tabular}
+     \\end{table}', file = "Tables/Confus_LR.tex", append = FALSE)
 
 
 # create roc object
@@ -90,8 +124,16 @@ system.time (
     x                = as.matrix (x_train),     #=> Matrix
     y                = y_train,                 #=> Numeric Vector 
     batch_size       = 500,     #=> #OfSamples/gradient update in each epoch
-    epochs           = 25,     #=> Control Training cycles
+    epochs           = 20,     #=> Control Training cycles
     validation_split = 0.30) ) #=> Include 30% data for 'Validation' Model
+
+
+p_learning <- plot(history) + thd + scale_color_manual(values = c(basem3, basem4)) + scale_fill_manual(values = c(basem3, basem4)) + 
+  #labs(title = 'Artificial Neural Netw') +
+   theme(legend.title = element_blank(), legend.key  = element_blank()) + labs(caption = 'Data: Freddie Mac Single Home Loan Level Dataset') 
+# save to disk
+ggsave(p_learning, filename = "Figures/p_ANN_learning.pdf", width=8, height=6, dpi=600)
+
 
 #save_model_h
 
@@ -120,17 +162,73 @@ y_act <- as.factor(y_test)
 classlabels = c(0,1)
 (performance_ANN = perform_class(y_pred, y_act ,classlabels))
 
+# save confusion matrix table to disk
+cat('\\begin{table}[H]
+     \\centering
+     \\caption{Confusion Matrix}
+     \\label{tab:Confusion_matrix}
+     \\begin{tabular}{@{}cc cc@{}}
+     \\multicolumn{1}{c}{} &\\multicolumn{1}{c}{} &\\multicolumn{2}{c}{\\textbf{Predicted}} \\\\
+     \\cmidrule(lr){3-4}
+     \\multicolumn{1}{c}{} & 
+     \\multicolumn{1}{c}{} & 
+     \\multicolumn{1}{c}{Default} & 
+     \\multicolumn{1}{c}{Not-default} \\\\
+     \\vspace{0.1cm}
+     \\cline{2-4}
+     \\multirow[c]{2}{*}{\\rotatebox[origin=tr]{90}{\\textbf{Actual}}}',
+     paste0('& Default  & ', format(performance_ANN$confus[1], nsmall=1, big.mark="."), '&', format(performance_ANN$confus[3], nsmall = 1, bog.mark = "."), ' \\\\[1.5ex]'),
+     paste0('& Not-default &', format(performance_ANN$confus[2],nsmall=1, big.mark="."),  '&', format(performance_ANN$confus[4], nsmall=1, big.mark="."),' \\\\'), 
+     '\\cline{2-4}
+     \\end{tabular}
+     \\end{table}', file = "Tables/Confus_ANN.tex", append = FALSE)
+
+
+
+
+
+
 
 # create roc object
 library(pROC)
 roc_NeuralNet <- roc(test$default, pred_NN_prob_vec, data = test,percent=TRUE, plot=TRUE,print.auc = TRUE)
 p_roc_NeuralNet<- ggroc(list(Neural_Network = roc_NeuralNet), alpha = 1, linetype = 3, size = 1) + thd + th  + scale_color_manual(values = c(basem3, basem4)) 
-p_rroc_NeuralNet 
+p_roc_NeuralNet 
 
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 # - - - - - - - - - - - - - -   ROC Curves    - - - - - - - - - - - - - - #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-p_roc <- ggroc(list(logreg = roc_logreg, NeuralNet = roc_NeuralNet), alpha = 1, linetype = 2, size = 1) + thd + th  + scale_color_manual(values = c(basem3, basem4)) 
-p_roc
+p_roc <- ggroc(list(logreg = roc_logreg, NeuralNet = roc_NeuralNet), alpha = 1, linetype = 2, size = 1) + thd + th  + scale_color_manual(values = c(basem3, basem4)) + theme(legend.key = element_blank(), legend.title = element_blank())
+p_roc 
+# save to disk
+ggsave(p_roc, filename = "Figures/p_roc.pdf", width=8, height=6, dpi=600) 
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+# - - - - - - - - - - - - - Bar plot performance  - - - - - - - - - - - - #
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+(df <- performance_LR[[2]])
+performance_LR
+performance_LR[[3]]
+
+# for creating bar plots
+df <- data.frame(model   = rep(c("LR", "ANN"), each=5),
+                 metric = rep(c("specificity", "sensitivity", "accuracy", "ppv", "npv"),2),
+                 value   = c(performance_LR[[2]], performance_LR[[3]], performance_LR[[4]], performance_LR[[5]], performance_LR[[6]], 
+                             performance_ANN[[2]], performance_ANN[[3]], performance_ANN[[4]], performance_ANN[[5]], performance_ANN[[6]]))
+
+library(ggplot2)
+p_performance <- ggplot(data=df, aes(x=metric, y=value, fill=model)) +
+  geom_bar(stat="identity", position=position_dodge())+
+  geom_text(aes(label=scales::percent(value)), vjust=1, color="white", hjust = 1,
+            position = position_dodge(1), size=3.5, angle = 90) +
+  #scale_fill_brewer(palette="Paired")+
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(basem3, basem4)) + th +
+  labs(caption = 'Data: Freddie Mac Single Family Loan-Level 2019.',
+       y       = "",
+       x       = "") +
+  theme(legend.title = element_blank())
+  
+ggsave(p_performance, filename = "Figures/p_performance.pdf", width=8, height=6, dpi=600) 
