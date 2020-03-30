@@ -46,7 +46,7 @@ cat('\\begin{table}[H]
      \\caption{Confusion Matrix}
      \\label{tab:Confusion_matrix}
      \\begin{tabular}{@{}cc cc@{}}
-     \\multicolumn{1}{c}{} &\\multicolumn{1}{c}{} &\\multicolumn{2}{c}{\\textbf{Predicted}} \\\\
+     \\multicolumn{1}{c}{} &\\multicolumn{1}{c}{} &\\multicolumn{2}{c}{\\textbf{Actual}} \\\\
      \\cmidrule(lr){3-4}
      \\multicolumn{1}{c}{} & 
      \\multicolumn{1}{c}{} & 
@@ -54,7 +54,7 @@ cat('\\begin{table}[H]
      \\multicolumn{1}{c}{Not-default} \\\\
      \\vspace{0.1cm}
      \\cline{2-4}
-     \\multirow[c]{2}{*}{\\rotatebox[origin=tr]{90}{\\textbf{Actual}}}',
+     \\multirow[c]{2}{*}{\\rotatebox[origin=tr]{90}{\\textbf{Predicted}}}',
     paste0('& Default  & ', format(performance_LR$confus[1], nsmall=1, big.mark="."), ' & ', format(performance_LR$confus[3], nsmall = 1, bog.mark = "."), ' \\\\[1.5ex]'),
     paste0('& Not-default &', format(performance_LR$confus[2],nsmall=1, big.mark="."),  ' & ', format(performance_LR$confus[4], nsmall=1, big.mark="."),' \\\\'), 
     '\\cline{2-4}
@@ -171,7 +171,7 @@ cat('\\begin{table}[H]
      \\caption{Confusion Matrix}
      \\label{tab:Confusion_matrix}
      \\begin{tabular}{@{}cc cc@{}}
-     \\multicolumn{1}{c}{} &\\multicolumn{1}{c}{} &\\multicolumn{2}{c}{\\textbf{Predicted}} \\\\
+     \\multicolumn{1}{c}{} &\\multicolumn{1}{c}{} &\\multicolumn{2}{c}{\\textbf{Actual}} \\\\
      \\cmidrule(lr){3-4}
      \\multicolumn{1}{c}{} & 
      \\multicolumn{1}{c}{} & 
@@ -179,7 +179,7 @@ cat('\\begin{table}[H]
      \\multicolumn{1}{c}{Not-default} \\\\
      \\vspace{0.1cm}
      \\cline{2-4}
-     \\multirow[c]{2}{*}{\\rotatebox[origin=tr]{90}{\\textbf{Actual}}}',
+     \\multirow[c]{2}{*}{\\rotatebox[origin=tr]{90}{\\textbf{Predicted}}}',
      paste0('& Default  & ', format(performance_ANN$confus[1], nsmall=1, big.mark="."), '&', format(performance_ANN$confus[3], nsmall = 1, bog.mark = "."), ' \\\\[1.5ex]'),
      paste0('& Not-default &', format(performance_ANN$confus[2],nsmall=1, big.mark="."),  '&', format(performance_ANN$confus[4], nsmall=1, big.mark="."),' \\\\'), 
      '\\cline{2-4}
