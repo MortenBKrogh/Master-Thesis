@@ -22,6 +22,9 @@ system.time (
                     family="binomial")
 )
   
+
+# summary(mod_logreg)
+# stargazer::stargazer(mod_logreg)
 # Make prediction from the logistic regression model
 #options(warn=-1)      #turn off warnings
 pred_logreg <- predict(mod_logreg, newdata = test, type = "response")
@@ -232,3 +235,89 @@ p_performance <- ggplot(data=df, aes(x=metric, y=value, fill=model)) +
   theme(legend.title = element_blank())
   
 ggsave(p_performance, filename = "Figures/p_performance.pdf", width=8, height=6, dpi=600) 
+
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+# - - - - - - - - - - - - - - - LIME EXPLANIER  - - - - - - - - - - - - - #
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+# Confusion Matrix
+#truth      = as.factor(y_test)
+
+estimates_ANN_v1 %>% conf_mat (y_act, y_pred_num)
+
+# Accuracy
+estimates_ANN_v1 %>% metrics (truth, estimate)
+
+# Area Under the Curve 
+estimates_ANN_v1 %>% roc_auc(truth, class_prob)
+
+# Precision and Recall
+tibble (
+  precision = estimates_ANN_v1 %>% precision(truth, estimate),
+  recall    = estimates_ANN_v1 %>% recall(truth, estimate) )
+
+# F1-score
+estimates_ANN_v1 %>% f_meas(truth, estimate, beta = 1)
+
+
+# Explain the model by LIME (Local Interpretable Model-agnostic Explanations)
+# function which tells lime that it is a classification exercise
+model_type.keras.models.Sequential <- function(x, ...) {
+  "classification"}
+
+# (2) Setup lime::predict_model() for keras
+# 
+# Now we can create our predict_model(): Wraps keras::predict_proba().
+# 
+# The trick here is to realize that it’s inputs must be
+# 
+# x a model,
+# newdata a dataframe object (this is important), and,
+# type which is not used but can be use to switch the output type.
+# The output is also a little tricky because it must be in the format of probabilities by classification (this is important; shown next).
+
+predict_model.keras.engine.sequential.Sequential <- function (x, newdata, type, ...) {
+  pred <- predict_proba (object = x, x = as.matrix(newdata))
+  data.frame ('Default' = pred, 'NonDefault' = 1 - pred) }
+
+
+predict_model (x       = ANN_v1, 
+               newdata = x_test, 
+               type    = 'raw') # %>%
+tibble::as_tibble()
+
+explainer <- lime::lime (
+  x              = x_train, 
+  model          = ANN_v1, 
+  bin_continuous = FALSE)
+
+system.time (
+  explanation <- lime::explain (
+    x_test[1:10, ], # Just to show first 10 cases
+    explainer    = explainer, 
+    n_labels     = 1, # explaining a `single class`(Polarity)
+    n_features   = 4, # returns top four features critical to each case
+    kernel_width = 0.5) ) # allows us to increase model_r2 value by shrinking the localized evaluation.
+
+# plot explaining features
+p_lime_features_ANN <- plot_features (explanation) +
+  labs (#title = "LIME: Feature Importance Visualized",
+        #subtitle = "First 10 cases of test set explained",
+        caption = 'Data: Freddie Mac Single Family Loan-Level 2019.',
+        y = "") +
+  scale_fill_manual(values = c(basem3, basem4)) + th 
+
+ggsave(p_lime_features_ANN, filename = "Figures/p_lime_features_ANN.pdf", width=8, height=8, dpi=600) 
+
+# plot explanations
+plot_explanations (explanation) +
+  labs (title = "LIME Feature Importance Heatmap",
+        subtitle = "Hold Out (Test) Set, First 10 Cases Shown",
+        caption = 'Data: Freddie Mac Single Family Loan-Level 2019.') +
+  scale_fill_manual(values = c(basem3, basem4)) + th 
+
+
+
+
+
