@@ -1,4 +1,4 @@
-\documentclass[twoside, a4paper,12pt, openright]{memoir}
+\documentclass[twoside, a4paper,12pt, openright, fleqn]{memoir}
 
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
@@ -18,6 +18,8 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage[labelfont=bf]{caption}
+\usepackage{caption}
+\captionsetup{justification=raggedright,singlelinecheck=false}
 
 % Aarhus University Font
 \usepackage{fontspec}
@@ -28,6 +30,9 @@ UprightFont = ./Fonts/AUPassata_Rg,
 BoldFont    = ./Fonts/AUPassata_Bold,
 ItalicFont  = ./Fonts/AUPassata_Italic
 }
+
+
+
 \setmainfont{AUFont}
 %\chapterfont{\fontfamily{Georgia}\selectfont}
 %\setmainfont{Georgia} 
@@ -155,7 +160,8 @@ ItalicFont  = ./Fonts/AUPassata_Italic
     \par\vskip2mm\hrule
     \fi
   }
-}											% ... her
+}
+
 
 \chapterstyle{jenor}						% veelo Valg af kapiteludseende - Google 'memoir chapter styles' for alternativer
 
@@ -231,12 +237,20 @@ ItalicFont  = ./Fonts/AUPassata_Italic
 }
 
 
+%\usepackage{neuralnetwork}
 \usepackage{neuralnetwork}
+
 \usepackage{tikz}
+\usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.8}
 \def\layersep{1.5cm}
 
-% FOR CONFUSION TABLES
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+\usepackage[numbers]{natbib}
+\raggedbottom
 
-
+\usepackage[ruled,vlined]{algorithm2e}
