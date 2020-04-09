@@ -97,7 +97,7 @@ p1 <- ggplot(data = dat, aes(y = default_pct, x = 1999:2018, group = 1 )) + geom
        #subtitle = 'By active loans pr. year.',
        caption = 'Data: Freddie Mac Single Home Loan Level Dataset',
        x = '',
-       y = '%') + scale_fill_manual(values = c(basem3, basem4)) 
+       y = 'Default rate %') + scale_fill_manual(values = c(basem3, basem4)) 
 
 # plot 2)
 p2 <- ggplot(data = dat, aes(y = loan_year/1000, x = 1999:2018, group = 1 )) + geom_line(color=basem3) + 
