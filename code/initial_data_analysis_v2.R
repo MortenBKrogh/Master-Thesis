@@ -93,9 +93,9 @@ p1 <- ggplot(data = dat, aes(y = default_pct, x = 1999:2018, group = 1 )) + geom
   theme(#axis.text.x = element_text(angle = 45),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),) +
-  labs(title = 'Default rate',
-       subtitle = 'By active loans pr. year.',
-       #caption = 'Data: Freddie Mac Single Home Loan Level Dataset',
+  labs(#title = 'Default rate',
+       #subtitle = 'By active loans pr. year.',
+       caption = 'Data: Freddie Mac Single Home Loan Level Dataset',
        x = '',
        y = '%') + scale_fill_manual(values = c(basem3, basem4)) 
 
@@ -110,14 +110,14 @@ p2 <- ggplot(data = dat, aes(y = loan_year/1000, x = 1999:2018, group = 1 )) + g
        #subtitle = 'By active loans pr. year.',
        caption = 'Data: Freddie Mac Single Home Loan Level Dataset',
        x = '',
-       y = 'Millions') + scale_fill_manual(values = c(basem3, basem4))  
+       y = 'Thousands') + scale_fill_manual(values = c(basem3, basem4))  
 
 # load patchwork package
 library(patchwork)
 pw1 <- (p1) / (p2) + plot_annotation(tag_levels = "I")
 pw1
 # save to disk
-ggsave(pw1, filename = "Figures/pw_1.pdf", width=8, height=6, dpi=600)
+ggsave(p1, filename = "Figures/pw_1.pdf", width=8, height=3, dpi=600)
 
 
 # patchwork figure 2)

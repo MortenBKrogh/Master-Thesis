@@ -30,9 +30,9 @@ system.time (
 pred_logreg <- predict(mod_logreg, newdata = test, type = "response")
 #options(warn=1)      #turn warnings back on
 
-
+sum(FM_data$orig_upb)
 # Confusion matrix and performance metrics
-y_pred_num <- ifelse(pred_logreg > 0.5, TRUE, FALSE)
+y_pred_num <- ifelse(pred_logreg > 0.2, TRUE, FALSE)
 y_pred <- factor(y_pred_num, levels=c(FALSE, TRUE))
 y_act <- test$default
 classlabels = c(0, 1)
@@ -133,7 +133,8 @@ system.time (
 
 p_learning <- plot(history) + thd + scale_color_manual(values = c(basem3, basem4)) + scale_fill_manual(values = c(basem3, basem4)) + 
   #labs(title = 'Artificial Neural Netw') +
-   theme(legend.title = element_blank(), legend.key  = element_blank()) + labs(caption = 'Data: Freddie Mac Single Home Loan Level Dataset') 
+   theme(legend.title = element_blank(), legend.key  = element_blank()) + labs(caption = 'Data: Freddie Mac Single Home Loan Level Dataset')
+
 # save to disk
 ggsave(p_learning, filename = "Figures/p_ANN_learning.pdf", width=8, height=6, dpi=600)
 
@@ -211,9 +212,6 @@ ggsave(p_roc, filename = "Figures/p_roc.pdf", width=8, height=6, dpi=600)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 # - - - - - - - - - - - - - Bar plot performance  - - - - - - - - - - - - #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-(df <- performance_LR[[2]])
-performance_LR
-performance_LR[[3]]
 
 # for creating bar plots
 df <- data.frame(model   = rep(c("LR", "ANN"), each=5),
@@ -285,7 +283,7 @@ predict_model.keras.engine.sequential.Sequential <- function (x, newdata, type, 
 predict_model (x       = ANN_v1, 
                newdata = x_test, 
                type    = 'raw') # %>%
-tibble::as_tibble()
+#tibble::as_tibble()
 
 explainer <- lime::lime (
   x              = x_train, 
