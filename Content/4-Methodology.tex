@@ -4,10 +4,10 @@ This chapter provides the general background on the methodology applied in this 
     The logistic regression was proposed by \cite{David_Cox_1958} and is a linear classifier, which models the probability of the possible classes in the target variable. In this thesis there are two classes of the target variable, that is >>Default<< and >>Non-Default<<, thus the problem is a binary classification problem. 
     Logistic regression apply linear functions in the predictors, and since the outcome modeled is probabilities, they have to lie between $[0,1]$, several functions are available to ensure this, the logistic regression model uses the logistic function. 
     
-    Let $\gamma$ be the dependent variable and $\boldsymbol{X} = \left(X_1, \dots, X_p\right)$ denote the predictor variables then we the logistic regression model is given by equation \ref{eq:logreg_1}:
+    Let $Y$ be the dependent variable and $\boldsymbol{X} = \left(X_1, \dots, X_p\right)$ denote the predictor variables then we the logistic regression model is given by equation \ref{eq:logreg_1}:
     
     \begin{flalign} \label{eq:logreg_1}
-    p_1\left( \boldsymbol{X} \right) = P \left( \gamma = 1 \mid \boldsymbol{X} \right) = \frac{e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}}{1+e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}} = \frac{e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X}  }}{1 + e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X^{\prime}} }}
+    p_1\left( \boldsymbol{X} \right) = P \left( Y = 1 \mid \boldsymbol{X} \right) = \frac{e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}}{1+e^{\beta_0 + \beta_1 X_1 + \dots + \beta_pX_p}} = \frac{e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X}  }}{1 + e^{\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X^{\prime}} }}
     \end{flalign}
     
     $\beta_0$, $\boldsymbol{\beta}$ are the parameters of the model. The model applies the logistic function $f\left( x \right) = \frac{e^x}{1+e^x}$ to $\beta_0 + \boldsymbol{\beta}^{\top} \boldsymbol{X}$, the logistic function is depicted in Figure \ref{fig:logistic_function}, the figure exemplifies how the function is mapping values in the interval $\left[ -\infty, \infty \right]$ to always lie in the interval $\left[ 0,1 \right]$.
@@ -307,39 +307,79 @@ where $y$ is the true value of the output and $\hat{y}_i$ is the model estimate 
 
 
 \section{Performance measures}
-Now that we introduced the Artificial Neural Network, we will consider the metrics often used in order to determine how well the network is performing. The metrics we will consider in this section, all originate from the \textit{Confusion matrix} presented in Table \ref{tab:Confusion_matrix} below.
+Now that we introduced the Logistic Regression and the Artificial Neural Network, we will consider how to evaluate the performance of the two classifiers. This chapter is based on \cite[pp. 146 - 149]{ISL}. 
 
+As mentioned throughout the thesis we want to predict whether or not a loan is going in the state of default or not, by using the explanatory variables. That is, predicting a binary target variable, $Y$ using explanatory variables $\boldsymbold{X}$. As described in the sections above, we do not directly model $Y$, instead we model the probability of $Y$ taking the value 1 (default), $p_1\left( \boldsymbol{X} \right) = P \left( Y = 1 \mid \boldsymbol{X} \right)$, thus also obtaining a level of confidence in the prediction. 
+
+When such a probability of default model has been obtained, $Y$ can be predicted with the explanatory variables $\boldsymbold{X}$ by using 
+
+\begin{flalign}\label{eq:performance_1}
+\hat{Y} & = \begin{cases}1, \qquad \ if p_1\left(\boldsymbold{X} \right)  > \alpha\\ 0, \qquad if \ p_1\left(\boldsymbold{X} \right) \leq \alpha \end{cases}
+\end{flalign}
+
+where $\alpha \in [0,1]$ is the threshold. Now that we have obtained predictions for $\gamme$, we would like to evaluate the performance of our models. Suppose we have a dataset with n observation $\left\{ \left(y_1, \boldsymbold{x}_1\right), \dots, \left(y_n, \boldsymbold{x}_n \right) \right\}$, and let $\left\{\hat{y}_1, \dots, \hat{y}_n \right\}$ be our predictions for a given threshold, $\alpha$. 
+
+One simple and intuitive performance measure is the misclassification rate defined as 
+\begin{flalign}\label{eq:performance_2}
+err = \frac{\sum_{i=1}^{n} \mathbbm{1} \left(y_i \neq \hat{y}_i \right)}{n}
+\end{flalign}
+which simply is the proportion of misclassified observations. Alternatively the accuracy is defined as
+\begin{flalign}\label{eq_performance_3}
+acc & = 1 - err 
+\end{flalign}
+which is the proportion of correctly classified observations. Both of these measure can be misleadning when the classes of the target variable is very unbalanced, meaning one class is over represented in the data. In our data approximately 2.8\% belongs to the class default in the data. The reason why these metrics can be misleading in the case of class imbalance, is that we easily is able to obtain a high accuracy and similar very low misclassification rate simply by assigning every prediction to the majority class. In our case we could obtain an accuracy of 97.2\%, by assigning all predictions to the class >>non-default<<. Thus, a model like this would be unusable and very misleading in the risk management point of view.
+
+To illustrate why, note out classifiers is able of producing two types of erros:
+\begin{itemize}
+    \item Type I Error: False Positive (FP)
+    \item Type II Error: False Negative (FN).
+\end{itemize}
+
+Thus we can incorrectly assign a observation which does not default to the default class, that is the type I error, or again incorrectly assign an observation who actually defaults to the class non-default, which is the type II error.
+
+The confusion matrix depicted in Figure \ref{tab:Confusion_matrix}, is a practical view of the Type I and II error allocation.
 \begin{table}[H]
     \centering
-        \caption{Confusion Matrix}
+        \caption{{Confusion Matrix. The diagonal represents observations, that were correctly classified. The off-diagonal represents observations that were misclassified.}}
     \label{tab:Confusion_matrix}
 \begin{tabular}{@{}cc cc@{}}
-\multicolumn{1}{c}{} &\multicolumn{1}{c}{} &\multicolumn{2}{c}{\textbf{Predicted}} \\ 
+\multicolumn{1}{c}{} &\multicolumn{1}{c}{} &\multicolumn{2}{c}{\textbf{Actual}} \\ 
 \cmidrule(lr){3-4}
 \multicolumn{1}{c}{} & 
 \multicolumn{1}{c}{} & 
-\multicolumn{1}{c}{Positive} & 
-\multicolumn{1}{c}{Negative} \\ 
+\multicolumn{1}{c}{Negative} & 
+\multicolumn{1}{c}{Positive} \\ 
 \vspace{0.1cm}
 \cline{2-4}
-\multirow[c]{2}{*}{\rotatebox[origin=tr]{90}{\textbf{Actual}}}
-& Positive  & True Positive (TP) & False Positive (FP)  \\[1.5ex]
-& Negative  & False Negative (FN)  & True Negative (TN) \\ 
+\multirow[c]{2}{*}{\rotatebox[origin=tr]{90}{\textbf{Predicted}}}
+& Negative  & True Negative (TN) & False Positive (FP)  \\[1.5ex]
+& Positive  & False Negative (FN)  & True Positive (TP) \\
 \cline{2-4}
 \end{tabular}
 \end{table}
 
-In order to assess the performance of our classifier we obtain the estimates and then compare these to the true outcome, and then sort our observations according to the four classes of the confusion matrix. Having done this allows us to use these numbers to compute several performance metrics such as the Specificity and Sensitivity, they are computed as presented in equation  \eqref{eq:sensitivity} and \eqref{eq:specificity}. Sensitivity can be interpreted as the probability of predicting a positive case (positive \= costumer defaulting)  given that the costumer actually did default. The Specificity on the other hand can be interpreted as the probability of predicting a negative case (negative \= costumer not defaulting) given that the costumer actually did not default \cite{ISL}. In our classification task it is more costly if the model is classifying costumers as not defaulting and the costumer actually defaults, because this will impose a loss  but if the model is classifying a costumer as defaulting and the costumer actually did not default then we do not suffer a loss, thus we are more concerned with the sensitivity than the specificity.
+While the confusion matrix in itself provides useful information, and we know we would like to have high numbers on the diagonal and small numbers on the off-diagonal it rapidly becomes confusing to interpret the matrix hereof the name. Thus, we use the matrix to calculate some performance metrics, that are easier to interpret. Some of these are presented below.
 
 \begin{flalign}
-%Precision & = \frac{TN}{TN + FP} \\
-Sensiticity & =  \frac{TN}{TN + FN} \label{eq:sensitivity}\\
-Specificity & = \frac{TP}{TP + FP} \label{eq:specificity}
-%NPV & = \frac{TP}{TP + FN} \\ 
-%Accuracy & = \frac{TP + TN}{TP + TN + FP + FN}
+Sensitivity & =  \frac{TP}{TP + FN} \label{eq:sensitivity}\\
+Specificity & = \frac{TN}{TN + FP} \label{eq:specificity} \\
+PPV & = \frac{TP}{TP + FP} \label{eq:PPV}\\
+NPV & = \frac{TN}{TN + FN}  \label{eq:NPV} \\ 
+Accuracy & = \frac{TP + TN}{TP + TN + FP + FN} \label{eq:acc}
 \end{flalign}
-%\subsection{Area Under the Curve}
-\section{Local Interpretable Model-agnostic Explanations (LIME)}
+
+ Sensitivity represents the rate of which the classifier was able to predict true classes out of all the true default cases. Specificity represents the proportion of true negative (non-default) cases that the classifier correctly classified. PPV (Positive Predictive Value or Precision) and NPV (Negative Predictive Value) represents the proportion of true positive (negative) cases out of all positive (negative) cases. Accuracy describes the overall performance of the classifier all correctly classified cases out of all the cases.
+ 
+ When considering the default classification problem from the point of view of a bank, misclassifying a costumer who truly are not defaulting translates into loss of potential profit. On the other hand misclassifying a true default will result in a potential loss from the costumer not repaying what is owed to the bank. 
+ 
+ In this setting the bank has to decide which of the two risks it is more concerned with or whether it is equally concerned with both. Recall Equation \eqref{eq:performance_1}, an $\alpha$ of 0.5 indicates that the bank equally weighs the two risks. By reducing the threshold, $\alpha$, in the classification rule, we will detect more defaults as the probability of a costumer defaulting now doesn't need to be above 0.5, this however is on compromise of misclassifying non-defaulters as defaults. One could imagine that a bank rather would miss out on profit than taking a loss on an existing costumer because it did not detect the costumer was going to default. 
+ 
+ Instead of taking a subjective decision about the risk aversion by choosing a specific $\alpha$ we introduce another metric which is based on the Receiver Operating Characteristics (ROC) curve. The ROC curve is the outcome of plotting $(1-specificity(\alpha))$ against $sensitivity(\alpha)$ for all values of $\alpha \in [0,1]$. Thus, illustrating the trade-off between specificity and sensitivity.
+ 
+ We would like the ROC curve to be as close as possible to the upper-left corner of the graph. That is, having the largest possible value (near 1) of $sensitivity(\alpha)$ and the lowest possible value (near 0) of $(1-specificity(\alpha))$. 
+ Comparing ROC curves of two competing models, the model with a ROC curve strictly above the other is the better model since it yields a higher sensitivity for any given $(1-specificity(\alpha))$.
+
+ \section{Local Interpretable Model-agnostic Explanations (LIME)}
 
 Artificial Neural Networks have been and are often strongly critized due to their complexity. If one were told to interpret an ANN, the natural thing would be to look at the parameters (weights and bias), if the ANN only had a input layer and output layer we would have as many parameters as we have explanatory variables plus a bias term, and the parameters are connected to a specific variable, and thus can be interpreted as an effect of that specific variable on the target variable. However as we add nodes and hidden layers to our ANN, the number of parameters in the network increases rapidly. An example where we have 30 explanatory variables 3 hidden layers where each layer has 128 nodes then we end up with 
 
