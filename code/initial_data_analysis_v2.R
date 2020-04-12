@@ -33,34 +33,6 @@ thd <- theme(plot.title        = element_text(size  = 10),
 th <- thd + theme(panel.grid.major  = element_blank(), 
                   panel.grid.minor  = element_blank())
 
-# define theme 
-base    <-  "#08306b"
-basem1  <- "#4f6980"
-basem2  <- "#849db1"
-basem3  <- '#003d85'
-basem4  <- '#FF7E00' #FF8C00'# '#ff9c0f'
-basevec <- c("#4f6980","#849db1","#a2ceaa","#638b66","#bfbb60","#f47942","#fbb04e","#b66353","#d7ce9f", "#b9aa97","#7e756d")
-
-
-thd <- theme(plot.title        = element_text(size  = 10),
-             plot.background   = element_blank(), #element_rect(fill  = "#f3f3f3", color = "#f3f3f3"),
-             panel.background  = element_blank(), #element_rect(fill  = "#f3f3f3", color = NA), 
-             legend.background = element_blank(), #element_rect(fill  = "#f3f3f3", color = NA),
-             legend.key        = element_rect(fill  = "#f3f3f3", color = NA),
-             legend.position   = 'bottom', 
-             strip.background  = element_blank(), #element_rect(fill  = "#f3f3f3", color = NA),
-             panel.border      = element_blank(), #eelement_rect(fill  = NA,        color = "black", size = 0.3),
-             panel.grid.major  = element_line(color ="#f3f3f3", size = 0.3), 
-             panel.grid.minor  = element_line(color ="#f3f3f3", size = 0.3), 
-             title             = element_text(color = "black"),
-             plot.subtitle     = element_text(color = "grey40", size = 8),
-             plot.caption      = element_text(color = "grey70"),
-             strip.text        = element_text(face  = "bold"),
-             axis.text         = element_text(color = "black"),
-             axis.ticks        = element_line(color = "black"))
-
-th <- thd + theme(panel.grid.major  = element_blank(), 
-                  panel.grid.minor  = element_blank())
 
 
 # patchwork figure 1)

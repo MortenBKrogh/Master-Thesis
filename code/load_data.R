@@ -109,9 +109,14 @@ FM_data_v1 <- FM_data %>% select(
 
 # obtain train and test dataset
 set.seed (20200206) # Seed: The day I am handing in my thesis
-( train_test_split <- initial_split (FM_data_v1, prop = 0.7) )
+( train_test_split <- initial_split (FM_data_v1, prop = 0.6) )
 train <- training (train_test_split) 
-test  <- testing (train_test_split)
+test_v1  <- testing (train_test_split)
+test_validation_split <- initial_split(test_v1, prop = 0.5)
+test <- training(test_validation_split)
+validation <- testing(test_validation_split)
+
+
 
 
 # check that train and test has approximately the same balance..
@@ -120,7 +125,7 @@ table(train$default)
 table(test$default)
 
 
-rm(Missing, train_test_split)
+rm(Missing, train_test_split, test_validation_split, test_v1)
 
 
 

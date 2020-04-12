@@ -22,19 +22,23 @@ system.time (
                     family="binomial")
 )
   
+summary(mod_logreg)
+stargazer::stargazer(mod_logreg)
 
-# summary(mod_logreg)
-# stargazer::stargazer(mod_logreg)
-# Make prediction from the logistic regression model
-#options(warn=-1)      #turn off warnings
-pred_logreg <- predict(mod_logreg, newdata = test, type = "response")
-#options(warn=1)      #turn warnings back on
+# predict on the test set
+pred_logreg_test <- predict(mod_logreg, newdata = test, type = "response")
+# create roc object
+library(pROC)
+roc_logreg <- roc(test$default, pred_logreg_test, data = test,percent=TRUE, plot=TRUE,print.auc = TRUE)
+logreg_threshold <- coords(roc_logreg, "best", ret = "threshold")
 
-sum(FM_data$orig_upb)
+# predict on the validation set
+pred_logreg_val <- predict(mod_logreg, newdata = validation, type = "response")
+
 # Confusion matrix and performance metrics
-y_pred_num <- ifelse(pred_logreg > 0.2, TRUE, FALSE)
+y_pred_num <- ifelse(pred_logreg_val > logreg_threshold$threshold, TRUE, FALSE)
 y_pred <- factor(y_pred_num, levels=c(FALSE, TRUE))
-y_act <- test$default
+y_act <- validation$default
 classlabels = c(0, 1)
 (performance_LR = perform_class(y_pred, y_act, classlabels))
 
@@ -91,80 +95,23 @@ x_train <- bake (preprocessing_steps, new_data = train) %>%
   select (-default)
 x_test <- bake (preprocessing_steps, new_data = test) %>% 
   select (-default)
+x_val <- bake (preprocessing_steps, new_data = validation) %>% 
+  select (-default)
 
 y_train <- ifelse (pull (train, default) == TRUE, 1, 0)
 y_test  <- ifelse (pull (test, default)  == TRUE, 1, 0)
+y_val   <- ifelse (pull (validation, default)  == TRUE, 1, 0)
 
-# Build the Artificial Neural Network
-ANN_v1 <- keras_model_sequential() %>%
-  # (1) 1st Hidden Layer
-  layer_dense (units              = 128, #=> Num Of Nodes
-               #kernel_initializer = "uniform", 
-               activation         = "relu",    
-               input_shape        = ncol(x_train)) %>% 
-  layer_dropout (rate = 0.1) %>%  #=> Dropout Below 10%: Prevent overfitting
-  # (2) 2nd Hidden Layer
-  layer_dense (units              = 128,
-               #kernel_initializer = "uniform", 
-               activation         = "relu") %>% 
-  layer_dropout (rate = 0.1) %>%  
-  # (3) Output Layer
-  layer_dense (units              = 1, #=> Binary/Multi?=>That Number
-               #kernel_initializer = "uniform", 
-               activation         = "sigmoid") %>% #=> Common for Binary
-  # (4) Compile Model
-  compile (optimizer = 'sgd', #=> sgd = stochastic gradient descent. adam is the Most Popular for Optimization Algo.
-           loss      = 'binary_crossentropy', #=> Binary Classification
-           metrics   = c('accuracy') ) #=> Train/Test Evaluation
+# Setting hyper parameters
+dropout_val_L1 = 0.2
+dropout_val_L2 = dropout_val_L3 = dropout_val_L4 = dropout_val_L5 = 0.5
+units_val   = 142
+epoch_val   = 25
+batch_val   = 528
+validations_split_val = 0.3
 
-# check the model is as it should be
-ANN_v1
-
-# Fit the ANN model
-system.time ( 
-  history <- fit (
-    object           = ANN_v1,                  # => Our Model
-    x                = as.matrix (x_train),     #=> Matrix
-    y                = y_train,                 #=> Numeric Vector 
-    batch_size       = 500,     #=> #OfSamples/gradient update in each epoch
-    epochs           = 20,     #=> Control Training cycles
-    validation_split = 0.30) ) #=> Include 30% data for 'Validation' Model
-
-
-p_learning <- plot(history) + thd + scale_color_manual(values = c(basem3, basem4)) + scale_fill_manual(values = c(basem3, basem4)) + 
-  #labs(title = 'Artificial Neural Netw') +
-   theme(legend.title = element_blank(), legend.key  = element_blank()) + labs(caption = 'Data: Freddie Mac Single Home Loan Level Dataset')
-
-# save to disk
-ggsave(p_learning, filename = "Figures/p_ANN_learning.pdf", width=8, height=6, dpi=600)
-
-
-#save_model_h
-
-# Make predictions
-pred_NN_class_vec <- predict_classes (object = ANN_v1,
-                                      x = as.matrix(x_test)) %>%
-  as.vector()
-# Predicted Probabilities
-pred_NN_prob_vec <- 
-  predict_proba (object = ANN_v1, 
-                 x = as.matrix(x_test)) %>%
-  as.vector()
-
-# Format data and predictions for yardstick
-estimates_ANN_v1 <- tibble(
-  truth      = as.factor(y_test) %>% 
-    fct_recode ('TRUE' = "1", 'FALSE' = "0"),
-  estimate   = as.factor(pred_NN_class_vec) %>% 
-    fct_recode ('TRUE' = "1", 'FALSE' = "0"),
-  class_prob = pred_NN_prob_vec )
-
-####
-y_pred_num <- ifelse(pred_NN_prob_vec > 0.5, 1, 0)
-y_pred <- factor(y_pred_num, levels=c(0, 1))
-y_act <- as.factor(y_test)
-classlabels = c(0,1)
-(performance_ANN = perform_class(y_pred, y_act ,classlabels))
+# - - - -  Estimating the ANNs - - - - #
+source('code/ANNs.R')
 
 # save confusion matrix table to disk
 cat('\\begin{table}[H]
@@ -199,13 +146,25 @@ roc_NeuralNet <- roc(test$default, pred_NN_prob_vec, data = test,percent=TRUE, p
 p_roc_NeuralNet<- ggroc(list(Neural_Network = roc_NeuralNet), alpha = 1, linetype = 3, size = 1) + thd + th  + scale_color_manual(values = c(basem3, basem4)) 
 p_roc_NeuralNet 
 
-
+coords(roc_NeuralNet, "best", ret = "threshold")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 # - - - - - - - - - - - - - -   ROC Curves    - - - - - - - - - - - - - - #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 p_roc <- ggroc(list(logreg = roc_logreg, NeuralNet = roc_NeuralNet), alpha = 1, linetype = 2, size = 1) + thd + th  + scale_color_manual(values = c(basem3, basem4)) + theme(legend.key = element_blank(), legend.title = element_blank())
 p_roc 
+
+
+p_roc <- ggroc(list(logreg = roc_logreg, 
+                    ANN_L1 = roc_ANN_L1,
+                    ANN_L2 = roc_ANN_L2,
+                    ANN_L3 = roc_ANN_L3,
+                    ANN_L4 = roc_ANN_L4,
+                    ANN_L5 = roc_ANN_L5,
+                    ANN_S1 = roc_ANN_S1,
+                    ANN_S2 = roc_ANN_S2,
+                    ANN_S3 = roc_ANN_S3), alpha = 1, linetype = 2, size = .3) + thd + th   + theme(legend.key = element_blank(), legend.title = element_blank())
+
 # save to disk
 ggsave(p_roc, filename = "Figures/p_roc.pdf", width=8, height=6, dpi=600) 
 
@@ -214,25 +173,44 @@ ggsave(p_roc, filename = "Figures/p_roc.pdf", width=8, height=6, dpi=600)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
 # for creating bar plots
-df <- data.frame(model   = rep(c("LR", "ANN"), each=5),
-                 metric = rep(c("specificity", "sensitivity", "accuracy", "ppv", "npv"),2),
-                 value   = c(performance_LR[[2]], performance_LR[[3]], performance_LR[[4]], performance_LR[[5]], performance_LR[[6]], 
-                             performance_ANN[[2]], performance_ANN[[3]], performance_ANN[[4]], performance_ANN[[5]], performance_ANN[[6]]))
+df <- data.frame(model   = rep(c("LR", "ANN_L1", "ANN_L2", "ANN_L3", "ANN_L4", "ANN_L5", "ANN_S1", "ANN_S2", "ANN_S3"), each=6),
+                 metric = rep(c("specificity", "sensitivity", "accuracy", "ppv", "npv", "AUC"),9),
+                 value   = c(performance_LR[[2]], performance_LR[[3]], performance_LR[[4]], performance_LR[[5]], performance_LR[[6]], roc_logreg$auc[1]/100, 
+                             performance_ANN_L1[[2]], performance_ANN_L1[[3]], performance_ANN_L1[[4]], performance_ANN_L1[[5]], performance_ANN_L1[[6]], roc_ANN_L1$auc[1]/100,
+                             performance_ANN_L2[[2]], performance_ANN_L2[[3]], performance_ANN_L2[[4]], performance_ANN_L2[[5]], performance_ANN_L2[[6]], roc_ANN_L2$auc[1]/100,
+                             performance_ANN_L3[[2]], performance_ANN_L3[[3]], performance_ANN_L3[[4]], performance_ANN_L3[[5]], performance_ANN_L3[[6]], roc_ANN_L3$auc[1]/100,
+                             performance_ANN_L4[[2]], performance_ANN_L4[[3]], performance_ANN_L4[[4]], performance_ANN_L4[[5]], performance_ANN_L4[[6]], roc_ANN_L4$auc[1]/100,
+                             performance_ANN_L5[[2]], performance_ANN_L5[[3]], performance_ANN_L5[[4]], performance_ANN_L5[[5]], performance_ANN_L5[[6]], roc_ANN_L5$auc[1]/100,
+                             performance_ANN_S1[[2]], performance_ANN_S1[[3]], performance_ANN_S1[[4]], performance_ANN_S1[[5]], performance_ANN_S1[[6]], roc_ANN_S1$auc[1]/100,
+                             performance_ANN_S2[[2]], performance_ANN_S2[[3]], performance_ANN_S2[[4]], performance_ANN_S2[[5]], performance_ANN_S2[[6]], roc_ANN_S2$auc[1]/100,
+                             performance_ANN_S3[[2]], performance_ANN_S3[[3]], performance_ANN_S3[[4]], performance_ANN_S3[[5]], performance_ANN_S3[[6]], roc_ANN_S3$auc[1]/100))
 
 library(ggplot2)
-p_performance <- ggplot(data=df, aes(x=metric, y=value, fill=model)) +
-  geom_bar(stat="identity", position=position_dodge())+
-  geom_text(aes(label=scales::percent(value)), vjust=1, color="white", hjust = 1,
-            position = position_dodge(1), size=3.5, angle = 90) +
+(p_performance <- ggplot(data=df, aes(x=metric, y=value, fill=model)) +
+  geom_bar(stat="identity", position=position_dodge(0.95))+
+  geom_text(aes(label=scales::percent(value)), vjust=0, color="white", hjust = 2,
+            position = position_dodge(0.95), 
+            size=3, angle = 90) +
   #scale_fill_brewer(palette="Paired")+
   scale_y_continuous(labels = scales::percent) +
-  scale_fill_manual(values = c(basem3, basem4)) + th +
+  #scale_fill_manual(values = c(basem3, basem4)) + 
+  th +
   labs(caption = 'Data: Freddie Mac Single Family Loan-Level 2019.',
        y       = "",
        x       = "") +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank()))
   
 ggsave(p_performance, filename = "Figures/p_performance.pdf", width=8, height=6, dpi=600) 
+
+# Generate table of performance metrics to LaTeX
+stargazer::stargazer(reshape2::dcast(data = df, model  ~ metric),
+                     title = "Performance Metrics",
+                     summary = FALSE,
+                     digits = 5)
+
+
+
+
 
 
 
@@ -242,21 +220,21 @@ ggsave(p_performance, filename = "Figures/p_performance.pdf", width=8, height=6,
 # Confusion Matrix
 #truth      = as.factor(y_test)
 
-estimates_ANN_v1 %>% conf_mat (y_act, y_pred_num)
+estimates_ANN %>% conf_mat (y_act, y_pred_num)
 
 # Accuracy
-estimates_ANN_v1 %>% metrics (truth, estimate)
+estimates_ANN %>% metrics (truth, estimate)
 
 # Area Under the Curve 
-estimates_ANN_v1 %>% roc_auc(truth, class_prob)
+estimates_ANN %>% roc_auc(truth, class_prob)
 
 # Precision and Recall
 tibble (
-  precision = estimates_ANN_v1 %>% precision(truth, estimate),
-  recall    = estimates_ANN_v1 %>% recall(truth, estimate) )
+  precision = estimates_ANN %>% precision(truth, estimate),
+  recall    = estimates_ANN %>% recall(truth, estimate) )
 
 # F1-score
-estimates_ANN_v1 %>% f_meas(truth, estimate, beta = 1)
+estimates_ANN %>% f_meas(truth, estimate, beta = 1)
 
 
 # Explain the model by LIME (Local Interpretable Model-agnostic Explanations)
@@ -280,14 +258,14 @@ predict_model.keras.engine.sequential.Sequential <- function (x, newdata, type, 
   data.frame ('Default' = pred, 'NonDefault' = 1 - pred) }
 
 
-predict_model (x       = ANN_v1, 
+predict_model (x       = ANN, 
                newdata = x_test, 
                type    = 'raw') # %>%
 #tibble::as_tibble()
 
 explainer <- lime::lime (
   x              = x_train, 
-  model          = ANN_v1, 
+  model          = ANN, 
   bin_continuous = FALSE)
 
 system.time (
